@@ -1,0 +1,39 @@
+import tkinter as tk
+from tkinter import ttk
+import mqtt
+
+root = tk.Tk()  # create a root widget
+width, height = 100, 100
+canvas = tk.Canvas(root, width=width, height=height, bg="white")
+canvas.pack()
+
+box = canvas.create_rectangle(50, 50, 100, 100, fill="blue")
+
+x_speed = 1
+movement = 1
+def move_box():
+    global x_speed, movement
+    pos = canvas.coords(box)
+
+    if pos[0] >= width:
+        movement = -x_speed
+
+
+
+
+    canvas.move(box, movement, 0)
+
+    root.after(20, move_box)
+
+
+
+root.title("PongExtrem")
+root.configure(bg="yellow")
+root.minsize(200, 200)  # width, height
+root.maxsize(800, 800)
+root.geometry("300x300+300+300")  # width x height + x + y
+
+move_box()
+
+
+root.mainloop()
