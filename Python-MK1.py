@@ -1,3 +1,4 @@
+import json
 import tkinter as tk
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
@@ -11,20 +12,31 @@ y_data = []
 def on_message(client, userdata, msg):
     global x_data, y_data
     try:
-        # Nachricht in zwei Arrays umwandeln (z.B. "1,2,3,4|2,3,5,7")
+        # JSON-Daten dekodieren
         payload = msg.payload.decode("utf-8")
-        x_str, y_str = payload.split('|')
-        x_data = list(map(int, x_str.split(',')))
-        y_data = list(map(int, y_str.split(',')))
+        data = json.loads(payload)  # JSON in ein Dictionary umwandeln
+
+        # X- und Y-Werte aus JSON extrahieren
+        x_value = data.get("x")
+        y_value = data.get("y")
+
+        if x_value is not None and y_value is not None:
+            # Werte den globalen Arrays hinzufügen
+            x_data.append(x_value)
+            y_data.append(y_value)
+            print(f"Empfangen: x={x_value}, y={y_value}")
+        else:
+            print("JSON-Objekt enthält keine x- oder y-Daten.")
     except Exception as e:
         print(f"Fehler beim Verarbeiten der Nachricht: {e}")
+
 
 # MQTT-Client einrichten
 client = mqtt.Client()
 client.on_message = on_message
 
 def connect_to_mqtt():
-    broker_address = "broker.hivemq.com"  # Beispiel-Broker
+    broker_address = "85.215.147.207"  # Beispiel-Broker
     topic = "test/koordinaten"
     client.connect(broker_address)
     client.subscribe(topic)
