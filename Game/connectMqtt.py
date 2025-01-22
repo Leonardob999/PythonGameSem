@@ -2,8 +2,8 @@ import json
 import paho.mqtt.client as mqtt
 
 # Arrays für empfangene Daten
-x_data = []
-y_data = []
+x_data = 0
+y_data = 0
 
 # Funktion zur Verarbeitung empfangener MQTT-Nachrichten
 def on_message(client, userdata, msg):
@@ -19,8 +19,8 @@ def on_message(client, userdata, msg):
 
         if x_value is not None and y_value is not None:
             # Werte den globalen Arrays hinzufügen
-            x_data.append(x_value)
-            y_data.append(y_value)
+            x_data = x_value
+            y_data = y_value
             print(f"Empfangen: x={x_value}, y={y_value}")
         else:
             print("JSON-Objekt enthält keine x- oder y-Daten.")
@@ -32,10 +32,10 @@ def on_message(client, userdata, msg):
 client = mqtt.Client()
 client.on_message = on_message
 
-def connect_to_mqtt():
-    broker_address = "85.215.147.207"  # Beispiel-Broker
-    topic = "test/koordinaten"
-    client.connect(broker_address)
-    client.subscribe(topic)
-    client.loop_start()  # Hintergrund-Thread starten
-    print("Mit MQTT-Broker verbunden und auf Nachrichten wartend...")
+
+broker_address = "85.215.147.207"  # Beispiel-Broker
+topic = "test/koordinaten"
+client.connect(broker_address)
+client.subscribe(topic)
+client.loop_start()  # Hintergrund-Thread starten
+print("Mit MQTT-Broker verbunden und auf Nachrichten wartend...")
