@@ -1,6 +1,7 @@
 import turtle
 import winsound
 import time
+import Game.connectMqtt as Mqtt
 
 wn = turtle.Screen()
 wn.title("Pong by Robin")
@@ -89,6 +90,8 @@ def paddle_a_down():
         y -= 20
         paddle_a.sety(y)
 
+
+
 def paddle_b_up():
     if not game_paused and game_initiated:  # Only move the paddle if the game is running and not paused
         y = paddle_b.ycor()
@@ -102,6 +105,9 @@ def paddle_b_down():
         paddle_b.sety(y)
 
 
+def update():
+    breakpoint()
+
 def ragequit():
     winsound.PlaySound("2025-01-22-22-05-40.wav", winsound.SND_ASYNC)
     time.sleep(2.9)
@@ -111,8 +117,10 @@ def ragequit():
 wn.listen()
 wn.onkeypress(paddle_a_up, "w")
 wn.onkeypress(paddle_a_down, "s")
+
 wn.onkeypress(paddle_b_up, "Up")
 wn.onkeypress(paddle_b_down, "Down")
+
 wn.onkeypress(ragequit, "h")
 wn.onkeypress(start_game, "k")
 wn.onkeypress(pause_game, "p")
@@ -126,6 +134,20 @@ while True:
 
     ball.setx(ball.xcor() + ball.dx)
     ball.sety(ball.ycor() + ball.dy)
+
+    #MPU controls, rechte seite
+    if Mqtt.a_x_data > 3:
+        y = paddle_b.ycor()
+        y -= 10
+        paddle_b.sety(y)
+
+    if Mqtt.a_x_data < -3:
+        y = paddle_b.ycor()
+        y += 10
+        paddle_b.sety(y)
+
+
+
     # border action
 
     # wenn Ball oben / unten berührt, richtung umdrehen
@@ -184,7 +206,7 @@ while True:
         hit_position = ball.ycor() - paddle_b.ycor()  # Difference from the center of paddle b
 
         # Adjust the ball's vertical direction (dy) based on where it hits the paddle
-        ball.dy = hit_position * 0.3 + 1  # Scale the effect, 0.15 is the multiplier for control
+        ball.dy = hit_position * 0.2  # Scale the effect, 0.15 is the multiplier for control
 
         winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
 
@@ -198,6 +220,7 @@ while True:
         hit_position = ball.ycor() - paddle_a.ycor()  # Difference from the center of paddle a
 
         # Adjust the ball's vertical direction (dy) based on where it hits the paddle
-        ball.dy = hit_position * 0.3 + 1  # Scale the effect, 0.15 is the multiplier for control
+        ball.dy = hit_position * 0.2  # Scale the effect, 0.15 is the multiplier for control
 
         winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
+
