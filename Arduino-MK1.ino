@@ -8,8 +8,8 @@
 Adafruit_MPU6050 mpu;
 
 // WLAN- und MQTT-Konfiguration
-const char* ssid = "Go Go Gadgeto Internet";
-const char* password = "KUFZc2U4VxkUiyydHnyF";
+const char* ssid = "IPAD";
+const char* password = "Fri3drich3bert5chul3";
 const char* mqtt_server = "85.215.147.207";  // Beispiel-MQTT-Broker
 const char* topic = "test/koordinaten";
 
@@ -63,28 +63,36 @@ void loop() {
     sensors_event_t a, g, temp;
     mpu.getEvent(&a, &g, &temp);
 
-    // Relative Bewegung berechnen (Beispiel)
-    float deltaX = a.acceleration.x * 0.001;  // Skalierung anpassen
-    float deltaY = a.acceleration.y * 0.001;
+    float a_x = a.acceleration.x;
+    float a_y = a.acceleration.y;
+    float a_z = a.acceleration.z;
 
-    // Auf letzten Wert aufaddieren
-    prev_x += deltaX;
-    prev_y += deltaY;
+    float g_x = g.gyro.x;
+    float g_y = g.gyro.y;
+    float g_z = g.gyro.z;
+
+    float t = temp.temperature;
+
 
     // JSON-Daten erstellen
-    sendData(prev_x, prev_y);
+    sendData(a_x, a_y, a_z, g_x, g_y, g_z, t);
 
-    Serial.print("X: "); Serial.print(prev_x);
-    Serial.print(" Y: "); Serial.println(prev_y);
+    Serial.print("gx: "); Serial.print(a_x);
+    Serial.print("gy: "); Serial.println(g_x);
   }
 }
 
 // Funktion zum Senden der Daten über MQTT
-void sendData(float x, float y) {
+void sendData(float ax, float ay, float az, float gx, float gy, float gz, float t) {
   // JSON-Objekt erstellen
   StaticJsonDocument<200> doc;
-  doc["x"] = x;
-  doc["y"] = y;
+  doc["ax"] = ax;
+  doc["ay"] = ay;
+  doc["az"] = az;
+  doc["gx"] = gx;
+  doc["gy"] = gy;
+  doc["gz"] = gz;
+  doc["t"] = t;
 
   char buffer[256];
   size_t n = serializeJson(doc, buffer);
