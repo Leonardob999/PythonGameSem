@@ -78,24 +78,29 @@ def pause_game():
         pen2.clear()
 
 def paddle_a_up():
-    y = paddle_a.ycor()
-    y += 20
-    paddle_a.sety(y)
+    if not game_paused and game_initiated:  # Only move the paddle if the game is running and not paused
+        y = paddle_a.ycor()
+        y += 20
+        paddle_a.sety(y)
 
 def paddle_a_down():
-    y = paddle_a.ycor()
-    y -= 20
-    paddle_a.sety(y)
+    if not game_paused and game_initiated:  # Only move the paddle if the game is running and not paused
+        y = paddle_a.ycor()
+        y -= 20
+        paddle_a.sety(y)
 
 def paddle_b_up():
-    y = paddle_b.ycor()
-    y += 20
-    paddle_b.sety(y)
+    if not game_paused and game_initiated:  # Only move the paddle if the game is running and not paused
+        y = paddle_b.ycor()
+        y += 20
+        paddle_b.sety(y)
 
 def paddle_b_down():
-    y = paddle_b.ycor()
-    y -= 20
-    paddle_b.sety(y)
+    if not game_paused and game_initiated:  # Only move the paddle if the game is running and not paused
+        y = paddle_b.ycor()
+        y -= 20
+        paddle_b.sety(y)
+
 
 def ragequit():
     winsound.PlaySound("2025-01-22-22-05-40.wav", winsound.SND_ASYNC)
@@ -170,13 +175,29 @@ while True:
 
     # paddle - ball berührung
     # paddle b rechts
-    if (ball.xcor() > 330 and ball.xcor() < 340) and (ball.ycor() < paddle_b.ycor() + 40 and ball.ycor() > paddle_b.ycor() - 40):
+    if (ball.xcor() > 330 and ball.xcor() < 340) and (
+            ball.ycor() < paddle_b.ycor() + 50 and ball.ycor() > paddle_b.ycor() - 50):
         ball.setx(330)
-        ball.dx *= -1
+        ball.dx *= -1  # Reverse horizontal direction
+
+        # Calculate the vertical displacement where the ball hits the paddle
+        hit_position = ball.ycor() - paddle_b.ycor()  # Difference from the center of paddle b
+
+        # Adjust the ball's vertical direction (dy) based on where it hits the paddle
+        ball.dy = hit_position * 0.3 + 1  # Scale the effect, 0.15 is the multiplier for control
+
         winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
 
     # paddle a links
-    if (ball.xcor() < -330 and ball.xcor() > -340) and (ball.ycor() < paddle_a.ycor() + 40 and ball.ycor() > paddle_a.ycor() - 40):
+    if (ball.xcor() < -330 and ball.xcor() > -340) and (
+            ball.ycor() < paddle_a.ycor() + 50 and ball.ycor() > paddle_a.ycor() - 50):
         ball.setx(-330)
-        ball.dx *= -1
+        ball.dx *= -1  # Reverse horizontal direction
+
+        # Calculate the vertical displacement where the ball hits the paddle
+        hit_position = ball.ycor() - paddle_a.ycor()  # Difference from the center of paddle a
+
+        # Adjust the ball's vertical direction (dy) based on where it hits the paddle
+        ball.dy = hit_position * 0.3 + 1  # Scale the effect, 0.15 is the multiplier for control
+
         winsound.PlaySound("bounce.wav", winsound.SND_ASYNC)
