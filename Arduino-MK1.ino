@@ -11,7 +11,7 @@ Adafruit_MPU6050 mpu;
 const char* ssid = "IPAD";
 const char* password = "Fri3drich3bert5chul3";
 const char* mqtt_server = "85.215.147.207";  // Beispiel-MQTT-Broker
-const char* topic = "test/koordinaten";
+const char* topic = "test/koordinaten"; /1 oder /2
 
 WiFiClient espClient;
 PubSubClient client(espClient);
