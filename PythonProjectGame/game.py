@@ -1,7 +1,8 @@
 import turtle
 import winsound
 import time
-import Game.connectMqtt as Mqtt
+import Game.connectMqtt1 as Mqtt1
+import Game.connectMqtt2 as Mqtt2
 
 wn = turtle.Screen()
 wn.title("Pong by Robin")
@@ -136,16 +137,26 @@ while True:
     ball.sety(ball.ycor() + ball.dy)
 
     #MPU controls, rechte seite
-    if Mqtt.a_x_data > 3:
+    if Mqtt1.a_x_data > 3:
         y = paddle_b.ycor()
         y -= 10
         paddle_b.sety(y)
 
-    if Mqtt.a_x_data < -3:
+    if Mqtt1.a_x_data < -3:
         y = paddle_b.ycor()
         y += 10
         paddle_b.sety(y)
 
+    #MPU controls, linke Seite
+    if Mqtt2.a_x_data > 3:
+        y = paddle_a.ycor()
+        y -= 10
+        paddle_a.sety(y)
+
+    if Mqtt2.a_x_data < -3:
+        y = paddle_a.ycor()
+        y += 10
+        paddle_a.sety(y)
 
 
     # border action
