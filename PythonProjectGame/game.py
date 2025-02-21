@@ -139,23 +139,23 @@ while True:
     #MPU controls, rechte seite
     if Mqtt1.a_x_data > 3:
         y = paddle_b.ycor()
-        y -= 10
+        y += 10
         paddle_b.sety(y)
 
     if Mqtt1.a_x_data < -3:
         y = paddle_b.ycor()
-        y += 10
+        y -= 10
         paddle_b.sety(y)
 
     #MPU controls, linke Seite
     if Mqtt2.a_x_data > 3:
         y = paddle_a.ycor()
-        y -= 10
+        y += 10
         paddle_a.sety(y)
 
     if Mqtt2.a_x_data < -3:
         y = paddle_a.ycor()
-        y += 10
+        y -= 10
         paddle_a.sety(y)
 
 
