@@ -55,7 +55,7 @@ client.on_message = on_message
 
 
 broker_address = "85.215.147.207"  # Beispiel-Broker
-topic = "test/koordinaten"
+topic = "test/koordinaten/player1"
 client.connect(broker_address)
 client.subscribe(topic)
 client.loop_start()  # Hintergrund-Thread starten

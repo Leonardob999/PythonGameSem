@@ -1,0 +1,20 @@
+<!-- frontend/index.html -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Spieler wählen</title>
+</head>
+<body>
+  <h1>Wähle deinen Spieler</h1>
+  <button onclick="selectPlayer('player1')">Spieler 1</button>
+  <button onclick="selectPlayer('player2')">Spieler 2</button>
+
+  <script>
+    function selectPlayer(player) {
+      localStorage.setItem("player", player);
+      window.location.href = "game.html";
+    }
+  </script>
+</body>
+</html>

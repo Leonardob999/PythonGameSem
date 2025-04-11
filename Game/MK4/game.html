@@ -1,0 +1,40 @@
+<!-- frontend/game.html -->
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Spiel</title>
+  <style>
+    #gameArea {
+      width: 100%;
+      height: 300px;
+      background: #eee;
+      position: relative;
+      margin-bottom: 20px;
+    }
+    .ball {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      position: absolute;
+      top: 135px;
+    }
+    #ball1 { background: red; }
+    #ball2 { background: blue; }
+
+    input[type="range"] {
+      width: 100%;
+    }
+  </style>
+</head>
+<body>
+  <h2>Spiel läuft...</h2>
+  <div id="gameArea">
+    <div id="ball1" class="ball"></div>
+    <div id="ball2" class="ball"></div>
+  </div>
+  <input type="range" min="0" max="100" id="slider" />
+
+  <script src="script.js"></script>
+</body>
+</html>
