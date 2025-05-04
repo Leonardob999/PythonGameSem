@@ -1,39 +1,89 @@
 import pygame
 from network import Network
 from player import Player
-from ball import Ball
 
-width = 1000
-height = 1000
-win = pygame.display.set_mode((width, height))
-pygame.display.set_caption("Client")
+# Fenstergröße festlegen
+WIN_WIDTH, WIN_HEIGHT = 1000, 1000
+win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+pygame.display.set_caption("Pong")
+
+# Pygame initialisieren
+pygame.init()
 
 
-def redrawWindow(win, player, player2, ball):
-    win.fill((255,255,255))
-    player.draw(win)
+# Punktestand zeichnen
+def draw_scores(win, scores):
+    font = pygame.font.SysFont("comicsans", 50)  # Schriftart festlegen
+    score_text = font.render(f"{scores[0]} - {scores[1]}", 1, (255, 255, 255))  # Punktestand rendern
+    win.blit(score_text, (WIN_WIDTH // 2 - score_text.get_width() // 2, 20))  # Punktestand zentriert oben anzeigen
+
+
+# Spiellogik für die Anzeige
+def redraw_window(win, player1, player2, ball, scores):
+    win.fill((0, 0, 0))  # Bildschirm schwarz löschen
+
+    # Spieler, Ball und Punktestand zeichnen
+    player1.draw(win)
     player2.draw(win)
-    ball.draw()
-    pygame.display.update()
+    ball.draw(win)
+    draw_scores(win, scores)
+
+    pygame.display.update()  # Aktualisiert das Fenster
 
 
 def main():
     run = True
-    n = Network()
-    p = n.getP()
-    b = n.getB
     clock = pygame.time.Clock()
+
+    # Netzwerkverbindung zum Server
+    n = Network()
+
+    # Spieler- und Balldaten vom Server erhalten
+    player = n.getP()  # Aktueller Spieler
+    ball = n.getB()  # Der Ball
+    scores = [0, 0]  # Initialer Punktestand
+
+    # Prüfe, ob Daten gültig sind
+    if player is None or ball is None:
+        print("Failed to receive initial data from server!")
+        return
 
     while run:
         clock.tick(60)
-        p2 = n.send(p)
 
+        try:
+            # Spielerbewegung senden und Daten vom Server empfangen
+            player.move()
+            data = n.send(player)
+
+            # Verifiziere, dass Daten nicht None sind
+            if data is None:
+                print("No data received from server. Closing connection.")
+                break
+
+            # Daten vom Server entpacken
+            opponent = data[0]  # Gegenspieler
+            ball = data[1]  # Ball
+            scores = data[2]  # Punktestand
+        except Exception as e:
+            print(f"Connection error: {e}")
+            break
+
+        # Spiel beenden, wenn ESCAPE gedrückt wird
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
-                pygame.quit()
 
-        p.move()
-        redrawWindow(win, p, p2, b)
+        # Spielfenster aktualisieren
+        if ball and opponent:  # Überprüfen, ob gültige Objekte vorhanden sind
+            redraw_window(win, player, opponent, ball, scores)
+        else:
+            print("Invalid game state, objects missing!")
+            break
 
-main()
+    pygame.quit()
+
+
+# Hauptfunktion starten
+if __name__ == "__main__":
+    main()
