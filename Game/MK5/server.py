@@ -41,7 +41,7 @@ def threaded_client(conn, player):
     while True:
         try:
             # Empfange Daten vom Spieler
-            data = pickle.loads(conn.recv(2048))
+            data = pickle.loads(conn.recv(8192))
             if not data:
                 print(f"No data received. Closing connection with player {player}.")
                 break
