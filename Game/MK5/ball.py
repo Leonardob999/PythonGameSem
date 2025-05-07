@@ -11,6 +11,7 @@ class Ball():
         self.initial_x = x  # Ursprüngliche X-Position (für Reset)
         self.initial_y = y  # Ursprüngliche Y-Position (für Reset)
 
+
     def reset_position(self):
         # Setze den Ball in die Mitte zurück
         self.x = self.initial_x
