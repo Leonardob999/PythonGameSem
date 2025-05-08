@@ -10,8 +10,6 @@ class Ball():
         self.vel_y = vel_y  # Ballgeschwindigkeit in Y-Richtung
         self.initial_x = x  # Ursprüngliche X-Position (für Reset)
         self.initial_y = y  # Ursprüngliche Y-Position (für Reset)
-        pygame.mixer.init()
-        self.bounce_sound = pygame.mixer.Sound("Game/MK5/sounds/bounce.wav")  # Sound einmal hier laden
 
     def reset_position(self):
         # Setze den Ball in die Mitte zurück
@@ -27,7 +25,6 @@ class Ball():
         # Kollision mit dem oberen und unteren Spielfeldrand
         if self.y - self.radius <= 0 or self.y + self.radius >= 1000:
             self.vel_y *= -1
-            self.bounce_sound.play()  # Sound abspielen, wenn die obere/untere Wand getroffen wird
 
         # Prüfen, ob der Ball ein Tor erzielt hat
         if self.x - self.radius <= 0:  # Linkes Tor
@@ -38,7 +35,6 @@ class Ball():
         # Kollision mit den Spielern (Schlägern)
         if self.collide(player1) or self.collide(player2):
             self.vel_x *= -1
-            self.bounce_sound.play()  # Sound abspielen, wenn ein Schläger getroffen wird
 
         return 0  # Kein Punkt erzielt
 

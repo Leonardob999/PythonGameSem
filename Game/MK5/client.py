@@ -20,9 +20,6 @@ else:
     print("Kein Controller gefunden. Spiel wird mit Tastatur gespielt.")
 
 
-# Soundeffekt lokal laden (nur im Client verwenden)
-bounce_sound = pygame.mixer.Sound("Game/MK5/sounds/bounce.wav")
-
 
 # Punktestand zeichnen
 def draw_scores(win, scores):
@@ -78,10 +75,6 @@ def main():
             opponent = data[0]  # Gegenspieler
             ball = data[1]  # Ball
             scores = data[2]  # Punktestand
-
-            # Sound abspielen, wenn der Ball etwas trifft
-            if ball.vel_x < 0 or ball.vel_y < 0:  # Simplifiziertes Beispiel
-                bounce_sound.play()
 
         except Exception as e:
             print(f"Connection error: {e}")
