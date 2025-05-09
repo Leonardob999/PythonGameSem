@@ -1,17 +1,20 @@
 import pygame
 import os
+import subprocess
 
 # Fenstergröße festlegen
 WIN_WIDTH, WIN_HEIGHT = 500, 300
+dirname = os.path.dirname(__file__)
+client_path = os.path.join(dirname, 'client.py')
 pygame.init()
 win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
 pygame.display.set_caption("Pong Start Page")
 
 
 def start_game():
-    """Funktion zum Starten des Spiels."""
     pygame.quit()
-    os.system("python3 client.py")  # Startet die 'client.py'-Datei
+    subprocess.Popen(["python3", client_path])  # Startet 'client.py' als neuen Prozess
+
 
 
 def main():

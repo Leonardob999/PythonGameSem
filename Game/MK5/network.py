@@ -21,29 +21,29 @@ class Network:
         return None  # Kein Ball verfügbar
 
     def connect(self):
-        try:
-            self.client.connect(self.addr)
-            data = self.client.recv(8192)
-
-            # Sicherstellen, dass Daten nicht leer sind
-            if not data:
-                raise ValueError("No data received from server.")
-
-            return pickle.loads(data)  # Empfange Spieler, Ball und ggf. Punktestand
-        except Exception as e:
-            print(f"Connection error: {e}")
-            return None  # Fehlerfall abfangen
+           try:
+               self.client.connect(self.addr)
+               data = self.client.recv(8192)
+               if not data:
+                   raise ValueError("No data received from server.")
+               return pickle.loads(data)
+           except Exception as e:
+               print(f"Connection error: {e}")
+               return None
 
     def send(self, data):
         try:
-            # Sende Daten an den Server
+            if data == "disconnect":
+                self.client.close()  # Verbindung explizit beenden
+                return None
             self.client.send(pickle.dumps(data))
             received = self.client.recv(8192)
             if received:
-                return pickle.loads(received)  # Gültige Antwort zurückgeben
+                return pickle.loads(received)
             else:
                 print("No data received from server.")
                 return None
         except Exception as e:
             print(f"Error sending data: {e}")
-            return None  # Rückgabe von None bei Fehler
+            return None
+

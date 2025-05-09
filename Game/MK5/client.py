@@ -1,6 +1,7 @@
 import pygame
 from network import Network
-
+from player import Player
+import start
 
 # Fenstergröße festlegen
 WIN_WIDTH, WIN_HEIGHT = 1000, 1000
@@ -41,6 +42,35 @@ def redraw_window(win, player1, player2, ball, scores):
     pygame.display.update()  # Aktualisiert das Fenster
 
 
+def display_game_over(win, message):
+    font = pygame.font.SysFont("comicsans", 80)
+    button_font = pygame.font.SysFont("comicsans", 50)
+    win.fill((0, 0, 0))  # Bildschirm leeren
+
+    # Gewinnmitteilung
+    text = font.render(message, 1, (255, 255, 255))
+    win.blit(text, (WIN_WIDTH // 2 - text.get_width() // 2, WIN_HEIGHT // 2 - text.get_height() // 2 - 50))
+
+    # "Zurück"-Button
+    button_color = (100, 100, 255)
+    button_rect = pygame.Rect(WIN_WIDTH // 2 - 100, WIN_HEIGHT // 2 + 50, 200, 80)
+    pygame.draw.rect(win, button_color, button_rect)
+    button_text = button_font.render("Zurück", 1, (0, 0, 0))
+    win.blit(button_text, (button_rect.x + button_rect.width // 2 - button_text.get_width() // 2,
+                           button_rect.y + button_rect.height // 2 - button_text.get_height() // 2))
+
+    pygame.display.update()
+
+    # Button-Logik
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                if button_rect.collidepoint(pygame.mouse.get_pos()):
+                    return  # Zurück zum Start
+
 def main():
     run = True
     clock = pygame.time.Clock()
@@ -53,9 +83,8 @@ def main():
     ball = n.getB()  # Der Ball
     scores = [0, 0]  # Initialer Punktestand
 
-    # Prüfe, ob Daten gültig sind
-    if player is None or ball is None:
-        print("Failed to receive initial data from server!")
+    if not isinstance(player, Player):  # Prüfen, ob ein gültiger Spieler-Objekt erhalten wurde
+        print("Failed to receive valid initial data from server!")
         return
 
     while run:
@@ -69,21 +98,31 @@ def main():
             # Verifiziere, dass Daten nicht None sind
             if data is None:
                 print("No data received from server. Closing connection.")
+                n.send("disconnect")
                 break
 
             # Daten vom Server entpacken
             opponent = data[0]  # Gegenspieler
             ball = data[1]  # Ball
             scores = data[2]  # Punktestand
+            game_over = data[3]  # Spielstatus
 
+            if game_over:  # Wenn das Spiel vorbei ist
+                n.send("disconnect")  # Verbindung beenden
+                display_game_over(win, game_over)
+                run = False  # Verbindung beenden und Schleife abbrechen
+                break
         except Exception as e:
             print(f"Connection error: {e}")
+            n.send("disconnect")
             break
 
         # Spiel beenden, wenn ESCAPE gedrückt wird
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 run = False
+                n.send("disconnect")  # Verbindung sauber beenden
+                break
 
         # Spielfenster aktualisieren
         if ball and opponent:  # Überprüfen, ob gültige Objekte vorhanden sind
@@ -92,7 +131,13 @@ def main():
             print("Invalid game state, objects missing!")
             break
 
+    # Spiel sauber beenden und zum Startbildschirm zurückkehren
     pygame.quit()
+
+    # Hier sicherstellen, dass kein "game_over"-Message mehr angezeigt wird
+    main_screen = start.main()  # Starte den Startbildschirm erneut
+
+
 
 
 # Hauptfunktion starten
