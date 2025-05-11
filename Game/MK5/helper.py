@@ -1,4 +1,7 @@
 import os
+import pygame
+import sys
+import webbrowser
 from start import *
 
 def shop_menu():
@@ -114,9 +117,134 @@ def shop_menu():
                     if rect.collidepoint(event.pos):
                         print(f"Coin-Pack {coin['name']} ausgewählt!")
                         # Hier Coin-Kauf-Logik
+                        open_link_window()
                 for rect, item in powerup_buttons:
                     if rect.collidepoint(event.pos):
                         print(f"Powerup {item['name']} ausgewählt!")
                         # Hier Powerup-Kauf-Logik
+
                 if back_rect.collidepoint(event.pos):
                     run = False
+
+
+
+def open_link_window():
+    pygame.init()
+    W, H = 320, 120
+    screen = pygame.display.set_mode((W, H))
+    pygame.display.set_caption("Mehr Infos")
+    font = pygame.font.SysFont('arial', 30, bold=True)
+
+    link_rect = pygame.Rect(60, 40, 200, 40)
+    link_color = (100, 100, 255)
+    text_color = (255, 255, 255)
+    bg_color = (240, 240, 240)
+
+    running = True
+    while running:
+        screen.fill(bg_color)
+        pygame.draw.rect(screen, link_color, link_rect, border_radius=7)
+        text = font.render("Moneten Moneten", True, text_color)
+        screen.blit(text, (link_rect.left + 12, link_rect.top + 5))
+        pygame.display.flip()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.MOUSEBUTTONDOWN:
+                if link_rect.collidepoint(event.pos):
+                    webbrowser.open_new("https://www.youtube.com/watch?v=dQw4w9WgXcQ")
+                    running = False  # Fenster schließen nach Klick
+
+    pygame.quit()
+
+# So kannst du das Fenster aufrufen:
+if __name__ == "__main__":
+    open_link_window()
+
+
+
+
+
+
+def einstellungen_menu():
+    # Globale Variablen um Einstellungen zu merken
+    global soundfx_on, musik_volume
+
+    # Initialwerte, falls nicht gesetzt
+    try:
+        soundfx_on
+    except NameError:
+        soundfx_on = True
+    try:
+        musik_volume
+    except NameError:
+        musik_volume = 0.5
+
+    run = True
+    font = pygame.font.SysFont("comicsans", 32)
+    info_font = pygame.font.SysFont("comicsans", 22)
+
+    # Schieberegler für Musiklautstärke
+    slider_x = WIN_WIDTH // 2 - 160
+    slider_y = 160
+    slider_w = 3200
+    slider_h = 12
+
+    while run:
+        win.fill((25,25,25))
+
+        # Überschrift
+        label = font.render("Einstellungen", True, (255,255,255))
+        win.blit(label, (WIN_WIDTH//2-label.get_width()//2, 60))
+
+        # --- Musiklautstärke-Schieberegler anzeigen ---
+        vol_label = info_font.render(f"Musiklautstärke: {int(musik_volume*10000)}%", True, (200,200,200))
+        win.blit(vol_label, (slider_x, slider_y-36))
+
+        # Slider-Balken
+        pygame.draw.rect(win, (100,100,105), (slider_x, slider_y, slider_w, slider_h), border_radius=5)
+        # Slider 'Knopf'
+        knob_x = int(slider_x + musik_volume*slider_w)
+        pygame.draw.circle(win, (200,170,80), (knob_x, slider_y+slider_h//2), 16)
+
+        # --- Soundeffekt-Button anzeigen ---
+        fx_btn_rect = pygame.Rect(WIN_WIDTH//2 - 120, 250, 240, 60)
+        fx_color = (80,200,80) if soundfx_on else (160,60,60)
+        pygame.draw.rect(win, fx_color, fx_btn_rect, border_radius=10)
+        fx_label = info_font.render("Soundeffekte: AN" if soundfx_on else "Soundeffekte: AUS", True, (10,10,10))
+        win.blit(fx_label, (fx_btn_rect.x + 24, fx_btn_rect.y + fx_btn_rect.height//2 - fx_label.get_height()//2))
+
+        # Zurück-Button
+        back_rect = pygame.Rect(WIN_WIDTH//2-80, WIN_HEIGHT-80, 160, 45)
+        pygame.draw.rect(win, (70,70,90), back_rect, border_radius=7)
+        back_label = info_font.render("Zurück", True, (255,255,255))
+        win.blit(back_label, (back_rect.x+35, back_rect.y+8))
+
+        pygame.display.update()
+
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mx, my = event.pos
+                # Schieberegler?
+                if (slider_x <= mx <= slider_x+slider_w) and (slider_y-12 <= my <= slider_y+slider_h+12):
+                    relativ = mx - slider_x
+                    musik_volume = min(max(relativ/slider_w, 0), 1)
+                    pygame.mixer.music.set_volume(musik_volume)
+                # Soundeffekt-Schalter?
+                if fx_btn_rect.collidepoint(mx,my):
+                    soundfx_on = not soundfx_on
+                # Zurück?
+                if back_rect.collidepoint(mx,my):
+                    run = False
+
+        # Ziehen auf Schieberegler
+        if pygame.mouse.get_pressed()[0]:
+            mx, my = pygame.mouse.get_pos()
+            if (slider_x <= mx <= slider_x+slider_w) and (slider_y-12 <= my <= slider_y+slider_h+12):
+                relativ = mx - slider_x
+                musik_volume = min(max(relativ/slider_w, 0), 1)
+                pygame.mixer.music.set_volume(musik_volume)

@@ -1,50 +1,81 @@
-import pygame  # Stelle sicher, dass pygame importiert ist
+import pygame
+import random
 
-
-class Ball():
-    def __init__(self, x, y, radius, vel_x=3, vel_y=3):
+class Ball:
+    def __init__(self, x, y, radius):
         self.x = x
         self.y = y
+        self.start_x = x
+        self.start_y = y
         self.radius = radius
-        self.vel_x = vel_x  # Ballgeschwindigkeit in X-Richtung
-        self.vel_y = vel_y  # Ballgeschwindigkeit in Y-Richtung
-        self.initial_x = x  # Ursprüngliche X-Position (für Reset)
-        self.initial_y = y  # Ursprüngliche Y-Position (für Reset)
+        self.color = (255, 255, 255)
+        self.max_speed = 9
+        self.base_speed = 7
+        self.reset_position()
 
     def reset_position(self):
-        # Setze den Ball in die Mitte zurück
-        self.x = self.initial_x
-        self.y = self.initial_y
-        self.vel_x *= -1  # Richtung umkehren, um Abwechslung zu schaffen
+        self.x = self.start_x
+        self.y = self.start_y
+        # Zufälliger Startwinkel, damit der Ball schräg fliegen kann
+        angle = random.uniform(-0.5, 0.5)  # Bereich: ca. -30° bis +30°
+        self.vel_x = self.base_speed * (1 if random.choice([True, False]) else -1)
+        self.vel_y = int(self.base_speed * angle)
+
+    def draw(self, win):
+        pygame.draw.circle(win, self.color, (int(self.x), int(self.y)), self.radius)
+
+    def intersects(self, player):
+        # Kollisionsprüfung: AABB vs. Kreis
+        circle_distance_x = abs(self.x - (player.x + player.width/2))
+        circle_distance_y = abs(self.y - (player.y + player.height/2))
+
+        if circle_distance_x > (player.width/2 + self.radius):
+            return False
+        if circle_distance_y > (player.height/2 + self.radius):
+            return False
+
+        if circle_distance_x <= (player.width/2):
+            return True
+        if circle_distance_y <= (player.height/2):
+            return True
+
+        corner_distance_sq = (circle_distance_x - player.width/2) ** 2 + \
+                             (circle_distance_y - player.height/2) ** 2
+
+        return corner_distance_sq <= (self.radius ** 2)
 
     def move(self, player1, player2):
-        # Ballbewegung
         self.x += self.vel_x
         self.y += self.vel_y
 
-        # Kollision mit dem oberen und unteren Spielfeldrand
-        if self.y - self.radius <= 0 or self.y + self.radius >= 1000:
+        # Am oberen oder unteren Rand abprallen
+        if self.y - self.radius <= 0:
+            self.y = self.radius
+            self.vel_y *= -1
+        elif self.y + self.radius >= 800:
+            self.y = 800 - self.radius
             self.vel_y *= -1
 
-        # Prüfen, ob der Ball ein Tor erzielt hat
-        if self.x - self.radius <= 0:  # Linkes Tor
-            return 2  # Spieler 2 bekommt einen Punkt
-        elif self.x + self.radius >= 1000:  # Rechtes Tor
-            return 1  # Spieler 1 bekommt einen Punkt
+        # Linke oder rechte Wand: Punkt vergeben
+        if self.x - self.radius <= 0:
+            return 2  # Punkt für Spieler 2
+        elif self.x + self.radius >= 1000:
+            return 1  # Punkt für Spieler 1
 
-        # Kollision mit den Spielern (Schlägern)
-        if self.collide(player1) or self.collide(player2):
-            self.vel_x *= -1
+        # Kollision mit dem linken Spieler
+        if self.intersects(player1) and self.vel_x < 0:
+            self.x = player1.x + player1.width + self.radius
+            impact_pos = (self.y - player1.y) / player1.height
+            impact_offset = (impact_pos - 0.5) * 2  # von -1 (oben) bis +1 (unten)
+            self.vel_y = impact_offset * self.max_speed
+            self.vel_x = abs(self.vel_x)  # nach rechts
 
-        return 0  # Kein Punkt erzielt
+        # Kollision mit dem rechten Spieler
+        elif self.intersects(player2) and self.vel_x > 0:
+            self.x = player2.x - self.radius
+            impact_pos = (self.y - player2.y) / player2.height
+            impact_offset = (impact_pos - 0.5) * 2  # von -1 (oben) bis +1 (unten)
+            self.vel_y = impact_offset * self.max_speed
+            self.vel_x = -abs(self.vel_x)  # nach links
 
-    def collide(self, player):
-        # Prüfen, ob der Ball mit einem Spieler kollidiert
-        if (self.x - self.radius <= player.x + player.width and self.x + self.radius >= player.x):
-            if self.y + self.radius >= player.y and self.y - self.radius <= player.y + player.height:
-                return True
-        return False
-
-    def draw(self, win):
-        # Ball auf dem Spielfeld zeichnen
-        pygame.draw.circle(win, (255, 255, 255), (self.x, self.y), self.radius)
+        return 0  # Kein Punkt vergeben

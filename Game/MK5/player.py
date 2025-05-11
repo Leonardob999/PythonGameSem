@@ -1,6 +1,6 @@
 import pygame
 
-WIN_WIDTH, WIN_HEIGHT = 1000, 1000
+WIN_WIDTH, WIN_HEIGHT = 1000, 800
 
 class Player():
     def __init__(self, x, y, width, height, color):
@@ -13,6 +13,7 @@ class Player():
         self.vel = 6
 
     def draw(self, win):
+        self.update()
         pygame.draw.rect(win, self.color, self.rect)
 
     def move(self, controller=None):

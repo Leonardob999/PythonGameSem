@@ -8,29 +8,34 @@ class Network:
         self.server = "127.0.0.1"
         self.port = 5555
         self.addr = (self.server, self.port)
+        self.client.settimeout(5)
         self.p = self.connect()  # Spieler laden
 
     def getP(self):
-        # Aktuelle Daten prüfen und Struktur sicherstellen
         if isinstance(self.p, tuple):
-            if len(self.p) == 2:  # Überprüfen, ob es aus zwei Werten besteht
-                return self.p  # Rückgabe eines Tuples mit (Status, Daten)
-            return (None, self.p)  # Status ist None, weil keine Konfiguration vorliegt
-        return (None, None)  # Keine gültigen Daten enthalten
+            if len(self.p) == 2:
+                return self.p
+            return (None, self.p)
+        return (None, None)
 
     def getB(self):
         if isinstance(self.p, tuple):
-            return self.p[1]  # Der Ball ist das zweite Element
-        return None  # Kein Ball verfügbar
+            return self.p[1]
+        return None
 
     def connect(self):
         """Verbindung zum Server herstellen."""
         try:
             self.client.connect(self.addr)
-            data = self.client.recv(8192)
+            try:
+                data = self.client.recv(8192)
+            except socket.timeout:
+                # Optional: print("Timeout beim Warten auf Daten vom Server.")
+                return None
+
             if not data:
                 raise ValueError("No data received from server.")
-            print("Verbindung erfolgreich hergestellt.")
+            # Optional: print("Verbindung erfolgreich hergestellt.")
             return pickle.loads(data)
         except ConnectionRefusedError:
             print("Verbindung verweigert. Ist der Server gestartet?")
@@ -43,20 +48,23 @@ class Network:
         """Daten an den Server senden."""
         try:
             if data == "disconnect":
-                print("Verbindung wird geschlossen.")
-                self.client.close()  # Verbindung explizit beenden
+                # Optional: print("Verbindung wird geschlossen.")
+                self.client.close()
                 return None
 
             self.client.send(pickle.dumps(data))
-            print(f"Daten gesendet: {data}")
+            # Optional: print(f"Daten gesendet: {data}")
 
-            received = self.client.recv(8192)
-            if received:
-                decoded_data = pickle.loads(received)
-                print(f"Antwort vom Server: {decoded_data}")
-                return decoded_data
-            else:
-                print("Keine Antwort vom Server erhalten.")
+            try:
+                data = self.client.recv(8192)
+                # [DEBUG]-Ausgaben entfernt
+                if data:
+                    return pickle.loads(data)
+                else:
+                    # Optional: print("[DEBUG] Keine Daten erhalten.")
+                    return None
+            except socket.timeout:
+                # Optional: print("Zeitüberschreitung beim Warten auf die Serverantwort.")
                 return None
         except (ConnectionResetError, BrokenPipeError):
             print("Verbindung zum Server verloren. Wurde die Verbindung geschlossen?")

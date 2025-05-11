@@ -1,118 +1,106 @@
 import socket
-from _thread import *
+from _thread import start_new_thread
 from player import Player
 from ball import Ball
 import pickle
+import time
 
 server = "127.0.0.1"
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-s.settimeout(30)  # Timeout von 30 Sekunden setzen
 
 try:
     s.bind((server, port))
+    print(f"[DEBUG] Server gestartet auf {server}:{port}")
 except socket.error as e:
-    str(e)
+    print(f"[ERROR] Fehler beim Binden: {e}")
+    exit(1)
 
 s.listen(2)
 print("Waiting for a connection, Server Started")
 
-# Initialisierte Spieler und Ball
 players = [Player(0, 425, 25, 150, (255, 255, 255)), Player(950, 425, 25, 150, (255, 255, 255))]
-ball = Ball(500, 500, 15)
+ball = Ball(500, 400, 15)  # y auf 400, weil Höhe = 800
 
-# Globale Variablen
-scores = [0, 0]  # Punktestand [Spieler 1, Spieler 2]
+scores = [0, 0]
 currentPlayer = 0
-game_config = None  # Spielkonfiguration (durch Spieler 1 festgelegt)
+game_mode = None
+
+# Spielerinputs speichern
+player_inputs = [None, None]
 
 def threaded_client(conn, player):
-    global ball, scores, players, currentPlayer, game_config
+    global ball, scores, players, currentPlayer, game_mode, player_inputs
 
     try:
-        # Spieler 1 setzt die initiale Konfiguration
-        if player == 0 and game_config is None:
-            conn.send(pickle.dumps(("config_required", None)))
+        print(f"[DEBUG] Client {player} verbunden. Warte auf Daten...")
+        data = conn.recv(8192)
+
+        if not data:
+            print(f"[DEBUG] Client {player} hat die Verbindung geschlossen.")
+            return
+
+        data = pickle.loads(data)
+
+        # Spielmodus abfragen
+        if isinstance(data, dict) and "name" in data:
+            game_mode = data
+            print(f"[DEBUG] Spielmodus vom Spieler 1 gesetzt: {game_mode}")
+            conn.sendall(pickle.dumps(("mode_set", True)))
         else:
-            conn.send(pickle.dumps(("config_set", (players[player], ball, scores, None))))
-    except Exception as e:
-        print(f"Error sending initial data to Player {player}: {e}")
-        conn.close()
-        return
+            conn.sendall(pickle.dumps(("invalid_mode", False)))
+            return
 
-    print(f"Thread für Player {player} gestartet.")
-
-    while True:
-        try:
-            data = conn.recv(8192)  # Daten empfangen
+        # Spielschleife
+        while True:
+            data = conn.recv(8192)
             if not data:
-                print(f"Player {player} hat die Verbindung geschlossen.")
+                print(f"[DEBUG] Client {player} hat die Verbindung geschlossen.")
                 break
 
-            data = pickle.loads(data)
+            # Spielerbewegungen empfangen
+            player_inputs[player] = pickle.loads(data)  # z.B. Tastenstatus oder Controllerdaten
 
-            if data == "disconnect":
-                print(f"Player {player} hat sich abgemeldet.")
-                break
+            if any(player_inputs):  # Sobald ein Spieler verbunden und aktiv ist
+                if player_inputs[0] is not None:
+                    players[0].y = player_inputs[0]['y']
+                if player_inputs[1] is not None:
+                    players[1].y = player_inputs[1]['y']
+                punkt = ball.move(players[0], players[1])
 
-            players[player] = data
-            print(f"Empfangene Daten von Player {player}: {data}")
+                if punkt == 1:
+                    scores[0] += 1
+                    ball.reset_position()
+                elif punkt == 2:
+                    scores[1] += 1
+                    ball.reset_position()
 
-            point = ball.move(players[0], players[1])
-            if point == 1:
-                scores[0] += 1
-                ball.reset_position()
-            elif point == 2:
-                scores[1] += 1
-                ball.reset_position()
+            other_player = players[1] if player == 0 else players[0]
+            game_over = False  # Optional: Prüf-Logik
 
-            game_over = None
-            if scores[0] >= 3:
-                game_over = "Player 1 gewinnt!"
-            elif scores[1] >= 3:
-                game_over = "Player 2 gewinnt!"
+            # Immer aktuellen Stand senden (beide Spieler, Ball, Punkte)
+            response = pickle.dumps(
+                (other_player, ball, scores, game_over)
+            )
+            conn.sendall(response)
+            # Server „verlangsamen“ — ca. 60 FPS
+            time.sleep(1 / 60.0)
 
-            if player == 0:
-                reply = (players[1], ball, scores, game_over)
-            else:
-                reply = (players[0], ball, scores, game_over)
-
-            conn.sendall(pickle.dumps(reply))
-
-            if game_over:
-                print(game_over)
-                break
-
-        except ConnectionResetError:
-            print(f"Player {player} hat die Verbindung unerwartet beendet.")
-            break
-
-        except Exception as e:
-            print(f"Fehler in der Kommunikation mit Player {player}: {e}")
-            break
-
-    print(f"Verbindung zu Player {player} geschlossen.")
-    conn.close()
-
-    # Spieler entfernen und zurücksetzen
-    players[player] = None
-    currentPlayer -= 1
-    if all(p is None for p in players):
-        scores = [0, 0]
-        ball.reset_position()
-        players[0] = Player(0, 425, 25, 150, (255, 255, 255))
-        players[1] = Player(950, 425, 25, 150, (255, 255, 255))
-        game_config = None
-        print("Spielzustand wurde zurückgesetzt. Warten auf neue Spieler.")
+    except Exception as e:
+        print(f"[ERROR] Fehler bei Client {player}: {e}")
+    finally:
+        conn.close()
+        print(f"[DEBUG] Verbindung zu Client {player} geschlossen.")
 
 while True:
-    conn, addr = s.accept()
-    if currentPlayer >= 2:
-        print(f"Connection refused: Too many players ({addr})")
-        conn.close()
-        continue
+    try:
+        conn, addr = s.accept()
+        print(f"[DEBUG] Verbunden mit: {addr}")
+        start_new_thread(threaded_client, (conn, currentPlayer))
+        currentPlayer += 1
+    except Exception as e:
+        print(f"[ERROR] Fehler beim Akzeptieren einer Verbindung: {e}")
+        break
 
-    print("Connected to:", addr)
-    start_new_thread(threaded_client, (conn, currentPlayer))
-    currentPlayer += 1
+s.close()
