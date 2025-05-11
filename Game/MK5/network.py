@@ -11,9 +11,12 @@ class Network:
         self.p = self.connect()  # Spieler laden
 
     def getP(self):
+        # Aktuelle Daten prüfen und Struktur sicherstellen
         if isinstance(self.p, tuple):
-            return self.p[0]  # Der Spieler ist das erste Element des Tuples
-        return self.p
+            if len(self.p) == 2:  # Überprüfen, ob es aus zwei Werten besteht
+                return self.p  # Rückgabe eines Tuples mit (Status, Daten)
+            return (None, self.p)  # Status ist None, weil keine Konfiguration vorliegt
+        return (None, None)  # Keine gültigen Daten enthalten
 
     def getB(self):
         if isinstance(self.p, tuple):

@@ -1,5 +1,6 @@
 import pygame
 import sys
+from helper import *  # Importiere das Shop-Menü aus helper.py
 from Game.MK5.client import GameClient
 
 pygame.init()
@@ -18,6 +19,24 @@ BUTTON_HOVER_COLOR = (150, 150, 255)
 # Schriftart
 font = pygame.font.SysFont("comicsans", 50)
 
+# Modus-Presets (anpassbare Werte)
+GAME_MODE_PRESETS = {
+    "infinite": {
+        "ball_speed": 4,
+        "player_speed": 6,
+        "max_score": None  # Unendlich
+    },
+    "best_of_7": {
+        "ball_speed": 5,
+        "player_speed": 6,
+        "max_score": 4  # 4 Siege für den Gewinn
+    },
+    "gauntlet": {
+        "ball_speed": 6,
+        "player_speed": 7,
+        "max_score": 7  # Spieler muss 7 Siege schaffen
+    },
+}
 
 def draw_button(win, text, x, y, w, h, is_hovered=False):
     """Zeichnet eine Schaltfläche."""
@@ -28,20 +47,15 @@ def draw_button(win, text, x, y, w, h, is_hovered=False):
     return pygame.Rect(x, y, w, h)
 
 
-def play_infinite_mode():
-    """Startet den unendlichen Spielmodus."""
-    start_game("infinite")  # Ruft die Spielfunktion mit Modus "infinite" auf
-
-
-def play_best_of_7():
-    """Startet den 'Best of 7'-Modus."""
-    start_game("best_of_7")  # Ruft die Spielfunktion mit Modus "best_of_7" auf
-
-
-def play_gauntlet_mode():
-    """Startet den 'Gauntlet'-Modus."""
-    start_game("gauntlet")  # Ruft die Spielfunktion mit Modus "gauntlet" auf
-
+def start_game(mode):
+    """Erstellt und startet ein GameClient-Objekt mit den Preset-Parametern des ausgewählten Modus."""
+    if mode in GAME_MODE_PRESETS:
+        presets = GAME_MODE_PRESETS[mode]
+        print(f"Starte Modus '{mode}' mit Presets: {presets}")
+        game_client = GameClient(mode, presets)  # Übergabe des Modus und der Presets
+        game_client.start()
+    else:
+        print(f"Unbekannter Modus: {mode}")
 
 def game_mode_menu():
     """Menü für die Auswahl eines Spielmodus."""
@@ -63,18 +77,17 @@ def game_mode_menu():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if infinite_mode_button.collidepoint(event.pos):
-                    play_infinite_mode()
-                    run = False  # Menü schließen, Spielmodus startet
+                    start_game("infinite")
+                    run = False
                 elif best_of_7_button.collidepoint(event.pos):
-                    play_best_of_7()
-                    run = False  # Menü schließen, Spielmodus startet
+                    start_game("best_of_7")
+                    run = False
                 elif gauntlet_mode_button.collidepoint(event.pos):
-                    play_gauntlet_mode()
-                    run = False  # Menü schließen, Spielmodus startet
+                    start_game("gauntlet")
+                    run = False
                 elif back_button.collidepoint(event.pos):
-                    run = False  # Zurück zum Hauptmenü
+                    run = False
 
-        # Hover-Effekte
         mouse_pos = pygame.mouse.get_pos()
         draw_button(win, "Infinite Mode", WIN_WIDTH // 2 - 150, 300, 350, 80,
                     infinite_mode_button.collidepoint(mouse_pos))
@@ -94,12 +107,12 @@ def main_menu():
         # Bildschirm aktualisieren
         win.fill(BLACK)
 
-        # Schaltflächen zeichnen
-        start_button = draw_button(win, "Spiel starten", WIN_WIDTH // 2 - 150, 300, 300, 80)
-        settings_button = draw_button(win, "Einstellungen", WIN_WIDTH // 2 - 150, 400, 300, 80)
-        quit_button = draw_button(win, "Spiel beenden", WIN_WIDTH // 2 - 150, 500, 300, 80)
+        # Hauptschaltflächen zeichnen
+        start_button = draw_button(win, "Spiel starten", WIN_WIDTH // 2 - 150, 300, 350, 80)
+        settings_button = draw_button(win, "Einstellungen", WIN_WIDTH // 2 - 150, 400, 350, 80)
+        quit_button = draw_button(win, "Spiel beenden", WIN_WIDTH // 2 - 150, 500, 350, 80)
+        shop_button = draw_button(win, "Shop", WIN_WIDTH // 2 - 150, 600, 350, 80)
 
-        # Ereignisse behandeln
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -108,28 +121,21 @@ def main_menu():
                 if start_button.collidepoint(event.pos):
                     game_mode_menu()  # Zu den Spielmodi wechseln
                 elif settings_button.collidepoint(event.pos):
-                    settings_menu()  # (Platzhalter) Einstellungen öffnen
+                    print("Einstellungsmenü (noch zu implementieren)")
                 elif quit_button.collidepoint(event.pos):
                     pygame.quit()
                     sys.exit()
+                elif shop_button.collidepoint(event.pos):
+                    shop_menu()  # Öffnet das Shop-Menü
 
-        # Hover-Effekte
         mouse_pos = pygame.mouse.get_pos()
         draw_button(win, "Spiel starten", WIN_WIDTH // 2 - 150, 300, 350, 80, start_button.collidepoint(mouse_pos))
         draw_button(win, "Einstellungen", WIN_WIDTH // 2 - 150, 400, 350, 80, settings_button.collidepoint(mouse_pos))
         draw_button(win, "Spiel beenden", WIN_WIDTH // 2 - 150, 500, 350, 80, quit_button.collidepoint(mouse_pos))
+        draw_button(win, "Shop", WIN_WIDTH // 2 - 150, 600, 350, 80, shop_button.collidepoint(mouse_pos))
 
         pygame.display.update()
 
-
-def settings_menu():
-    """Platzhalter für Einstellungen."""
-    print("Einstellungsmenü (noch zu implementieren)")
-
-def start_game(mode):
-    """Erstellt und startet ein GameClient-Objekt mit dem angegebenen Modus."""
-    game_client = GameClient(mode)
-    game_client.start()
 
 if __name__ == "__main__":
     main_menu()
