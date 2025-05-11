@@ -16,8 +16,7 @@ class Ball:
     def reset_position(self):
         self.x = self.start_x
         self.y = self.start_y
-        # Zufälliger Startwinkel, damit der Ball schräg fliegen kann
-        angle = random.uniform(-0.5, 0.5)  # Bereich: ca. -30° bis +30°
+        angle = random.uniform(-0.5, 0.5)
         self.vel_x = self.base_speed * (1 if random.choice([True, False]) else -1)
         self.vel_y = int(self.base_speed * angle)
 
@@ -25,7 +24,6 @@ class Ball:
         pygame.draw.circle(win, self.color, (int(self.x), int(self.y)), self.radius)
 
     def intersects(self, player):
-        # Kollisionsprüfung: AABB vs. Kreis
         circle_distance_x = abs(self.x - (player.x + player.width/2))
         circle_distance_y = abs(self.y - (player.y + player.height/2))
 
@@ -48,7 +46,6 @@ class Ball:
         self.x += self.vel_x
         self.y += self.vel_y
 
-        # Am oberen oder unteren Rand abprallen
         if self.y - self.radius <= 0:
             self.y = self.radius
             self.vel_y *= -1
@@ -56,26 +53,23 @@ class Ball:
             self.y = 800 - self.radius
             self.vel_y *= -1
 
-        # Linke oder rechte Wand: Punkt vergeben
         if self.x - self.radius <= 0:
-            return 2  # Punkt für Spieler 2
+            return 2
         elif self.x + self.radius >= 1000:
-            return 1  # Punkt für Spieler 1
+            return 1
 
-        # Kollision mit dem linken Spieler
         if self.intersects(player1) and self.vel_x < 0:
             self.x = player1.x + player1.width + self.radius
             impact_pos = (self.y - player1.y) / player1.height
-            impact_offset = (impact_pos - 0.5) * 2  # von -1 (oben) bis +1 (unten)
+            impact_offset = (impact_pos - 0.5) * 2
             self.vel_y = impact_offset * self.max_speed
-            self.vel_x = abs(self.vel_x)  # nach rechts
+            self.vel_x = abs(self.vel_x)
 
-        # Kollision mit dem rechten Spieler
         elif self.intersects(player2) and self.vel_x > 0:
             self.x = player2.x - self.radius
             impact_pos = (self.y - player2.y) / player2.height
-            impact_offset = (impact_pos - 0.5) * 2  # von -1 (oben) bis +1 (unten)
+            impact_offset = (impact_pos - 0.5) * 2
             self.vel_y = impact_offset * self.max_speed
-            self.vel_x = -abs(self.vel_x)  # nach links
+            self.vel_x = -abs(self.vel_x)
 
-        return 0  # Kein Punkt vergeben
+        return 0

@@ -5,7 +5,7 @@ from ball import Ball
 import pickle
 import time
 
-server = "127.0.0.1"
+server = "100.101.29.26"
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -26,8 +26,6 @@ ball = Ball(500, 400, 15)  # y auf 400, weil Höhe = 800
 scores = [0, 0]
 currentPlayer = 0
 game_mode = None
-
-# Spielerinputs speichern
 player_inputs = [None, None]
 
 def threaded_client(conn, player):
@@ -36,14 +34,12 @@ def threaded_client(conn, player):
     try:
         print(f"[DEBUG] Client {player} verbunden. Warte auf Daten...")
         data = conn.recv(8192)
-
         if not data:
             print(f"[DEBUG] Client {player} hat die Verbindung geschlossen.")
             return
 
         data = pickle.loads(data)
 
-        # Spielmodus abfragen
         if isinstance(data, dict) and "name" in data:
             game_mode = data
             print(f"[DEBUG] Spielmodus vom Spieler 1 gesetzt: {game_mode}")
@@ -52,17 +48,31 @@ def threaded_client(conn, player):
             conn.sendall(pickle.dumps(("invalid_mode", False)))
             return
 
-        # Spielschleife
+        # Auf Nachfrage Index senden!
+        index_sent = False
+
         while True:
             data = conn.recv(8192)
             if not data:
                 print(f"[DEBUG] Client {player} hat die Verbindung geschlossen.")
                 break
 
-            # Spielerbewegungen empfangen
-            player_inputs[player] = pickle.loads(data)  # z.B. Tastenstatus oder Controllerdaten
+            # Auf Anfrage des Index:
+            try:
+                loaded = pickle.loads(data)
+            except Exception:
+                continue
 
-            if any(player_inputs):  # Sobald ein Spieler verbunden und aktiv ist
+            if loaded == {} and not index_sent:
+                conn.sendall(pickle.dumps(player))
+                index_sent = True
+                continue
+
+            # Spielerbewegungen empfangen
+            if isinstance(loaded, dict) and 'y' in loaded:
+                player_inputs[player] = loaded
+
+            if any(player_inputs):
                 if player_inputs[0] is not None:
                     players[0].y = player_inputs[0]['y']
                 if player_inputs[1] is not None:
@@ -77,16 +87,13 @@ def threaded_client(conn, player):
                     ball.reset_position()
 
             other_player = players[1] if player == 0 else players[0]
-            game_over = False  # Optional: Prüf-Logik
+            game_over = False
 
-            # Immer aktuellen Stand senden (beide Spieler, Ball, Punkte)
             response = pickle.dumps(
                 (other_player, ball, scores, game_over)
             )
             conn.sendall(response)
-            # Server „verlangsamen“ — ca. 60 FPS
             time.sleep(1 / 60.0)
-
     except Exception as e:
         print(f"[ERROR] Fehler bei Client {player}: {e}")
     finally:

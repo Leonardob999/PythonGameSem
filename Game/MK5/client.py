@@ -18,12 +18,36 @@ class GameClient:
         self.run = True
         self.scores = [0, 0]
         self.ball = None
+        self.player_index = 0  # Eigener Index: 0=links, 1=rechts
+
+    def invert_y(self, y):
+        return y  # Y achse bleibt gleich (oben/unten nicht spiegeln)
+
+    def invert_ball(self, ball):
+        from ball import Ball
+        b = Ball(self.win_width - ball.x, ball.y, ball.radius)
+        b.vel_x = -ball.vel_x
+        b.vel_y = ball.vel_y
+        return b
+
+    def invert_player(self, player):
+        from player import Player
+        return Player(self.win_width - player.x - player.width, player.y, player.width, player.height, player.color)
+
+    def invert_scores(self, scores):
+        return [scores[1], scores[0]]
 
     def start(self):
         try:
             # Sende Modus-Info an den Server (Spielstart/Namensauswahl)
             response = self.network.send(self.mode)
             if isinstance(response, tuple) and response[0] == "mode_set":
+                # Hole mit leerem Dict den eigenen Index (0 oder 1)
+                reply = self.network.send({})
+                if isinstance(reply, int):
+                    self.player_index = reply
+                else:
+                    self.player_index = 0
                 self.game_loop()
             else:
                 print("Es gab ein Problem beim Setzen des Spielmodus. Antwort:", response)
@@ -63,7 +87,20 @@ class GameClient:
                     break
 
                 if isinstance(data, tuple) and len(data) == 4:
-                    other_player, self.ball, self.scores, game_over = data
+                    other_player, ball, scores, game_over = data
+
+                    # Spieler 0 sieht alles unverändert, Spieler 1 invertiert!
+                    if self.player_index == 1:
+                        # Position von self und Gegner switchen
+                        other_player = self.invert_player(other_player)
+                        ball = self.invert_ball(ball)
+                        scores = self.invert_scores(scores)
+                        self.player.x = 0  # immer links anzeigen
+                    else:
+                        self.player.x = 0
+
+                    self.ball = ball
+                    self.scores = scores
                 else:
                     print("Ungültige Daten vom Server erhalten.")
                     continue
