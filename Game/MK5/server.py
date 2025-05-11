@@ -31,6 +31,8 @@ player_inputs = [None, None]
 def threaded_client(conn, player):
     global ball, scores, players, currentPlayer, game_mode, player_inputs
 
+    conn.sendall(pickle.dumps("connected")) # Begrüßungsnachricht an Client
+
     try:
         print(f"[DEBUG] Client {player} verbunden. Warte auf Daten...")
         data = conn.recv(8192)

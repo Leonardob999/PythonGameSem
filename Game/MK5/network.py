@@ -9,7 +9,48 @@ class Network:
         self.port = 5555
         self.addr = (self.server, self.port)
         self.client.settimeout(5)
-        self.p = self.connect()  # Spieler laden
+        self.p = None
+        self.connect()  # Verbindung wird aufgebaut
+
+    def connect(self):
+        """Verbindung zum Server herstellen und direkt 'Modus'-Daten schicken."""
+        try:
+            self.client.connect(self.addr)
+            # Achtung: Der Modus muss vom aufrufenden Code geschickt werden!
+            # Daher hier KEIN automatischer Send-Versuch, sondern erst später.
+            # Die Methode send() wird später vom Client verwendet, um die Modus-Info zu schicken.
+            # Wir empfangen also NICHT sofort etwas.
+            # self.p belegen lassen wir durch das erste send() von außen
+            pass
+        except ConnectionRefusedError:
+            print("Verbindung verweigert. Ist der Server gestartet?")
+        except Exception as e:
+            print(f"Connection error: {e}")
+
+    def send(self, data):
+        """Daten an den Server senden und Antwort empfangen."""
+        try:
+            if data == "disconnect":
+                self.client.close()
+                return None
+
+            self.client.send(pickle.dumps(data))
+
+            try:
+                response = self.client.recv(8192)
+                if response:
+                    return pickle.loads(response)
+                else:
+                    return None
+            except socket.timeout:
+                print("Zeitüberschreitung beim Warten auf die Serverantwort.")
+                return None
+        except (ConnectionResetError, BrokenPipeError):
+            print("Verbindung zum Server verloren. Wurde die Verbindung geschlossen?")
+            return None
+        except Exception as e:
+            print(f"Error sending data: {e}")
+            return None
 
     def getP(self):
         if isinstance(self.p, tuple):
@@ -22,53 +63,3 @@ class Network:
         if isinstance(self.p, tuple):
             return self.p[1]
         return None
-
-    def connect(self):
-        """Verbindung zum Server herstellen."""
-        try:
-            self.client.connect(self.addr)
-            try:
-                data = self.client.recv(8192)
-            except socket.timeout:
-                # Optional: print("Timeout beim Warten auf Daten vom Server.")
-                return None
-
-            if not data:
-                raise ValueError("No data received from server.")
-            # Optional: print("Verbindung erfolgreich hergestellt.")
-            return pickle.loads(data)
-        except ConnectionRefusedError:
-            print("Verbindung verweigert. Ist der Server gestartet?")
-            return None
-        except Exception as e:
-            print(f"Connection error: {e}")
-            return None
-
-    def send(self, data):
-        """Daten an den Server senden."""
-        try:
-            if data == "disconnect":
-                # Optional: print("Verbindung wird geschlossen.")
-                self.client.close()
-                return None
-
-            self.client.send(pickle.dumps(data))
-            # Optional: print(f"Daten gesendet: {data}")
-
-            try:
-                data = self.client.recv(8192)
-                # [DEBUG]-Ausgaben entfernt
-                if data:
-                    return pickle.loads(data)
-                else:
-                    # Optional: print("[DEBUG] Keine Daten erhalten.")
-                    return None
-            except socket.timeout:
-                # Optional: print("Zeitüberschreitung beim Warten auf die Serverantwort.")
-                return None
-        except (ConnectionResetError, BrokenPipeError):
-            print("Verbindung zum Server verloren. Wurde die Verbindung geschlossen?")
-            return None
-        except Exception as e:
-            print(f"Error sending data: {e}")
-            return None
