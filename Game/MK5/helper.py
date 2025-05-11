@@ -1,20 +1,24 @@
+import os
 from start import *
 
 def shop_menu():
     """Shop-Menü mit Powerups unten und Coin-Angeboten nebeneinander oben."""
 
     # Powerup-Items (weiterhin untereinander, aber kleiner & weiter unten)
+
+    dirname = os.path.dirname(__file__)
+
     shop_items = [
-        {"name": "Power-Up", "text": "Erhöht deine Geschwindigkeit!", "image": "powerup.png"},
-        {"name": "Extra-Leben", "text": "Du bekommst ein weiteres Leben.", "image": "leben.png"},
-        {"name": "Schutzschild", "text": "Schützt dich vor Angriffen.", "image": "schild.png"},
+        {"name": "Power-Up", "text": "Erhöht deine Geschwindigkeit!", "image": os.path.join(dirname, 'images/powerup.png')},
+        {"name": "Extra-Leben", "text": "Du bekommst ein weiteres Leben.", "image": os.path.join(dirname, 'images/leben.png')},
+        {"name": "Schutzschild", "text": "Schützt dich vor Angriffen.", "image": os.path.join(dirname, 'images/schild.png')},
     ]
 
     # Coin-Angebote (kleine Felder, nebeneinander)
     shop_coins = [
-        {"name": "100", "text": "Armer schlucker", "image": "100.png"},
-        {"name": "500", "text": "Aight", "image": "500.png"},
-        {"name": "1000", "text": "Geil", "image": "1000.png"},
+        {"name": "100", "text": "Armer schlucker", "image": os.path.join(dirname, 'images/100.png')},
+        {"name": "500", "text": "Aight", "image": os.path.join(dirname, 'images/500.png')},
+        {"name": "1000", "text": "Geil", "image": os.path.join(dirname, 'images/1000.png')},
     ]
 
     # Layout: kleinere Felder
@@ -57,8 +61,11 @@ def shop_menu():
                 img = pygame.image.load(coin["image"])
                 img = pygame.transform.scale(img, (coin_box_size - 26, coin_box_size - 38))
                 win.blit(img, (x + 13, y + 8))
-            except Exception:
-                pass # wenn kein Bild existiert
+            except Exception as e:
+                print(f"Fehler beim Laden von {coin['image']}: {e}")
+
+
+
 
             name_label = coin_font.render(coin["name"], True, BLACK)
             name_x = x + (coin_box_size - name_label.get_width()) // 2
@@ -81,8 +88,10 @@ def shop_menu():
                 img = pygame.image.load(item["image"])
                 img = pygame.transform.scale(img, (powerup_button_height - 14, powerup_button_height - 14))
                 win.blit(img, (base_powerup_x + 10, y + 7))
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"Fehler beim Laden von {coin['image']}: {e}")
+
+
 
             # Name & Text
             label = font.render(item["name"], True, BLACK)

@@ -8,6 +8,7 @@ server = "127.0.0.1"
 port = 5555
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+s.settimeout(30)  # Timeout von 30 Sekunden setzen
 
 try:
     s.bind((server, port))
@@ -30,28 +31,33 @@ def threaded_client(conn, player):
     global ball, scores, players, currentPlayer, game_config
 
     try:
-        # Spieler 1 darf die Spielkonfiguration setzen, sofern nicht vorhanden
+        # Spieler 1 setzt die initiale Konfiguration
         if player == 0 and game_config is None:
-            conn.send(pickle.dumps(("config_required", None)))  # Senden von config_required an Spieler 1
+            conn.send(pickle.dumps(("config_required", None)))
         else:
-            conn.send(pickle.dumps(("config_set", (players[player], ball, scores, None))))  # Senden der Konfiguration an Spieler 2
-
+            conn.send(pickle.dumps(("config_set", (players[player], ball, scores, None))))
     except Exception as e:
-        print(f"Error sending initial data: {e}")
+        print(f"Error sending initial data to Player {player}: {e}")
         conn.close()
         return
 
+    print(f"Thread für Player {player} gestartet.")
+
     while True:
         try:
-            data = pickle.loads(conn.recv(8192))
+            data = conn.recv(8192)  # Daten empfangen
             if not data:
+                print(f"Player {player} hat die Verbindung geschlossen.")
                 break
 
+            data = pickle.loads(data)
+
             if data == "disconnect":
-                print(f"Player {player} disconnected.")
+                print(f"Player {player} hat sich abgemeldet.")
                 break
 
             players[player] = data
+            print(f"Empfangene Daten von Player {player}: {data}")
 
             point = ball.move(players[0], players[1])
             if point == 1:
@@ -74,26 +80,31 @@ def threaded_client(conn, player):
 
             conn.sendall(pickle.dumps(reply))
 
-            if game_over:  # Wenn das Spiel endet
+            if game_over:
                 print(game_over)
                 break
 
-        except Exception:
+        except ConnectionResetError:
+            print(f"Player {player} hat die Verbindung unerwartet beendet.")
             break
 
-    print(f"Lost connection to player {player}")
+        except Exception as e:
+            print(f"Fehler in der Kommunikation mit Player {player}: {e}")
+            break
+
+    print(f"Verbindung zu Player {player} geschlossen.")
     conn.close()
 
-    # Spieler entfernen und prüfen, ob das Spiel zurückgesetzt werden soll
+    # Spieler entfernen und zurücksetzen
     players[player] = None
-    currentPlayer -= 1  # Spieleranzahl verringern
-    if all(p is None for p in players):  # Wenn alle Spieler weg sind
-        scores = [0, 0]  # Punktestand zurücksetzen
+    currentPlayer -= 1
+    if all(p is None for p in players):
+        scores = [0, 0]
         ball.reset_position()
-        players[0] = Player(0, 425, 25, 150, (255, 255, 255))  # Spieler zurücksetzen
+        players[0] = Player(0, 425, 25, 150, (255, 255, 255))
         players[1] = Player(950, 425, 25, 150, (255, 255, 255))
-        game_config = None  # Konfiguration zurücksetzen
-        print("Game state reset. Ready for new players.")
+        game_config = None
+        print("Spielzustand wurde zurückgesetzt. Warten auf neue Spieler.")
 
 while True:
     conn, addr = s.accept()
