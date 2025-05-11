@@ -1,6 +1,6 @@
 import pygame
 import sys
-from game import start_game  # Importiere die `start_game`-Funktion aus der bestehenden Spiellogik
+from Game.MK5.client import GameClient
 
 pygame.init()
 
@@ -126,6 +126,10 @@ def settings_menu():
     """Platzhalter für Einstellungen."""
     print("Einstellungsmenü (noch zu implementieren)")
 
+def start_game(mode):
+    """Erstellt und startet ein GameClient-Objekt mit dem angegebenen Modus."""
+    game_client = GameClient(mode)
+    game_client.start()
 
 if __name__ == "__main__":
     main_menu()
