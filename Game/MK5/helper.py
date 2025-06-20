@@ -41,8 +41,8 @@ def shop_menu():
     start_coin_x = WIN_WIDTH // 2 - total_coins_width // 2
 
     # Schriftarten
-    desc_font = pygame.font.SysFont("comicsans", 22)
-    coin_font = pygame.font.SysFont("comicsans", 28)
+    desc_font = pygame.font.SysFont("arial", 22)
+    coin_font = pygame.font.SysFont("arial", 28)
 
     run = True
     while run:
@@ -57,7 +57,7 @@ def shop_menu():
             y = base_coin_y
             rect = pygame.Rect(x, y, coin_box_size, coin_box_size)
             color = BUTTON_HOVER_COLOR if rect.collidepoint(mouse_pos) else BUTTON_COLOR
-            pygame.draw.rect(win, color, rect, border_radius=10)
+            pygame.draw.rect(win, color, rect)
 
             # Bild für Coin
             try:
@@ -84,7 +84,7 @@ def shop_menu():
             y = base_powerup_y + idx * (powerup_button_height + powerup_spacing)
             rect = pygame.Rect(base_powerup_x, y, powerup_button_width, powerup_button_height)
             color = BUTTON_HOVER_COLOR if rect.collidepoint(mouse_pos) else BUTTON_COLOR
-            pygame.draw.rect(win, color, rect, border_radius=12)
+            pygame.draw.rect(win, color, rect)
 
             # Bild
             try:
@@ -103,8 +103,26 @@ def shop_menu():
             win.blit(desc, (base_powerup_x + powerup_button_height, y + 38))
             powerup_buttons.append((rect, item))
 
+        """Zurück-Button
+                   back_rect = draw_button(win, "Zurück", WIN_WIDTH // 2 - 160, WIN_HEIGHT - 60, 320, 50)
+                   back_rect = draw_button(win, "Zurück", WIN_WIDTH // 2 - 160, 700, 350, 80)
+
+
+                   # Mauspositionen für Hover-Effekte
+                   mouse_pos = pygame.mouse.get_pos()
+                   draw_button(win, "Zurück", WIN_WIDTH // 2 - 160, 700, 350, 80,
+                               back_rect.collidepoint(mouse_pos))"""
+
+        info_font = pygame.font.SysFont("arial", 22)
+
         # Zurück-Button
-        back_rect = draw_button(win, "Zurück", WIN_WIDTH // 2 - 160, WIN_HEIGHT - 60, 320, 50)
+        back_rect = pygame.Rect(WIN_WIDTH // 2 - 80, WIN_HEIGHT - 80, 160, 45)
+        pygame.draw.rect(win, (70, 70, 90), back_rect)
+        back_label = info_font.render("Zurück", True, (255, 255, 255))
+        win.blit(back_label, (back_rect.x + 35, back_rect.y + 8))
+
+
+
 
         pygame.display.update()
 
@@ -182,8 +200,8 @@ def einstellungen_menu():
         musik_volume = 0.5
 
     run = True
-    font = pygame.font.SysFont("comicsans", 32)
-    info_font = pygame.font.SysFont("comicsans", 22)
+    font = pygame.font.SysFont("arial", 32)
+    info_font = pygame.font.SysFont("arial", 22)
 
     # Schieberegler für Musiklautstärke
     slider_x = WIN_WIDTH // 2 - 160
@@ -192,7 +210,7 @@ def einstellungen_menu():
     slider_h = 12
 
     while run:
-        win.fill((25,25,25))
+        win.fill((0,0,0))
 
         # Überschrift
         label = font.render("Einstellungen", True, (255,255,255))
@@ -211,13 +229,13 @@ def einstellungen_menu():
         # --- Soundeffekt-Button anzeigen ---
         fx_btn_rect = pygame.Rect(WIN_WIDTH//2 - 120, 250, 240, 60)
         fx_color = (80,200,80) if soundfx_on else (160,60,60)
-        pygame.draw.rect(win, fx_color, fx_btn_rect, border_radius=10)
+        pygame.draw.rect(win, fx_color, fx_btn_rect)
         fx_label = info_font.render("Soundeffekte: AN" if soundfx_on else "Soundeffekte: AUS", True, (10,10,10))
         win.blit(fx_label, (fx_btn_rect.x + 24, fx_btn_rect.y + fx_btn_rect.height//2 - fx_label.get_height()//2))
 
         # Zurück-Button
         back_rect = pygame.Rect(WIN_WIDTH//2-80, WIN_HEIGHT-80, 160, 45)
-        pygame.draw.rect(win, (70,70,90), back_rect, border_radius=7)
+        pygame.draw.rect(win, (70,70,90), back_rect)
         back_label = info_font.render("Zurück", True, (255,255,255))
         win.blit(back_label, (back_rect.x+35, back_rect.y+8))
 
