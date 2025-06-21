@@ -5,14 +5,17 @@ import json
 
 shop_data = json.load(open("Game/MK5/shop_data.json"))
 selected = shop_data["selected_background"]
-hintergrundbild = pygame.image.load(f"Game/MK5/images/background_0{selected+1}.png")
+
+
 
 class Client:
     def __init__(self, host = "127.0.0.1"):
         pygame.init()
         pygame.mixer.init()  # Initialisiert den Soundmixer
-
+        pygame.display.init()
         pygame.joystick.init()
+
+        self.hintergrundbild = pygame.image.load(f"Game/MK5/images/background_0{selected + 1}.png").convert()
 
         self.host = host
 
@@ -27,6 +30,7 @@ class Client:
         self.scores = [0, 0]
         self.ball = None
         self.player_index = 0  # Eigener Index: 0=links, 1=rechts
+
 
     def invert_y(self, y):
         return y  # Y achse bleibt gleich (oben/unten nicht spiegeln)
@@ -110,7 +114,7 @@ class Client:
                     continue
 
                 # Zeichnen
-                self.win.blit(hintergrundbild, (0, 0))
+                self.win.blit(self.hintergrundbild, (0, 0))
                 me.draw(self.win)
                 enemy.draw(self.win)
                 self.ball.draw(self.win)

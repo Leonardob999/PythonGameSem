@@ -25,6 +25,7 @@ class Ball:
     def draw(self, win):
         pygame.draw.circle(win, self.color, (int(self.x), int(self.y)), self.radius)
 
+
     def intersects(self, player):
         circle_distance_x = abs(self.x - (player.x + player.width/2))
         circle_distance_y = abs(self.y - (player.y + player.height/2))
