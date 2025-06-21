@@ -2,6 +2,7 @@ import pygame
 from network import Network
 from player import Player
 import json
+from ball import Ball
 
 shop_data = json.load(open("Game/MK5/shop_data.json"))
 selected = shop_data["selected_background"]
@@ -17,9 +18,13 @@ class Client:
 
         self.hintergrundbild = pygame.image.load(f"Game/MK5/images/background_0{selected + 1}.png").convert()
 
-        self.bg_music_rick = pygame.mixer.Sound("Game/MK5/sounds/bg_music_rick.mp3")  # Pfad anpassen, falls nötig
+        shop_data = json.load(open("Game/MK5/shop_data.json"))
+        musik_volume = shop_data.get("music_volume", 0.5)  # Standard 0.5, falls nicht gesetzt
 
-        self.bg_music_rick.play() # Spiele hintergrundmusik
+        self.bg_music_rick = pygame.mixer.Sound("Game/MK5/sounds/bg_music_rick.mp3")
+        self.bg_music_rick.set_volume(musik_volume)  # Lautstärke einstellen
+        self.bg_music_rick.play(-1)  # Endlosschleife
+
 
         self.host = host
 
@@ -40,10 +45,7 @@ class Client:
         return y  # Y achse bleibt gleich (oben/unten nicht spiegeln)
 
     def invert_ball(self, ball):
-        from ball import Ball
-        b = Ball(self.win_width - ball.x, ball.y, ball.radius)
-        b.vel_x = -ball.vel_x
-        b.vel_y = ball.vel_y
+        b = Ball(self.win_width - ball.x - ball.radius, ball.y, ball.radius)
         return b
 
     def invert_player(self, player):
@@ -112,7 +114,11 @@ class Client:
 
 
                         # Ball und Scores zuweisen
-                    self.ball = ball
+                    if self.player_index == 1:
+                        self.ball = ball
+                    else:
+                        self.ball = self.invert_ball(ball)
+                    self.scores = scores
 
                 else:
                     print("Ungültige Daten vom Server erhalten.")

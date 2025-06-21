@@ -299,8 +299,20 @@ background_thumbs = [pygame.transform.scale(pygame.image.load(p), (100, 60)) for
 def lade_shop_daten():
     if os.path.exists(SAVE_FILE):
         with open(SAVE_FILE, "r") as f:
-            return json.load(f)
-    return {"owned_backgrounds": [], "selected_background": 0}
+            data = json.load(f)
+    else:
+        data = {}
+
+    # Standardwerte setzen, falls sie fehlen
+    if "owned_backgrounds" not in data:
+        data["owned_backgrounds"] = []
+    if "selected_background" not in data:
+        data["selected_background"] = 0
+    if "music_volume" not in data:
+        data["music_volume"] = 0.5  # Standardlautstärke
+
+    return data
+
 
 def speichere_shop_daten(data):
     with open(SAVE_FILE, "w") as f:
@@ -375,6 +387,8 @@ def einstellungen_menu():
                 if slider_x <= mx <= slider_x + slider_w and slider_y - 12 <= my <= slider_y + slider_h + 12:
                     relativ = mx - slider_x
                     musik_volume = min(max(relativ / slider_w, 0), 1)
+                    shop_data["music_volume"] = musik_volume
+                    speichere_shop_daten(shop_data)
 
                 if fx_btn_rect.collidepoint(mx, my):
                     soundfx_on = not soundfx_on
