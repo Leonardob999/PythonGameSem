@@ -1,6 +1,7 @@
 import pickle
 
 import pygame
+import pygame_textinput
 import sys
 from serverClass import GameServer
 from network import Network
@@ -127,6 +128,7 @@ def host_menu():
 
 def server_selection():
     """Menü für das beitreten zu einem server"""
+
     run = True
     while run:
         # Bildschirm aktualisieren
@@ -146,7 +148,6 @@ def server_selection():
                     """macht join server"""
                 elif back_button.collidepoint(event.pos):
                     run = False  # Zurück zum Hauptmenü
-
 
         # Mauspositionen für Hover-Effekte
         mouse_pos = pygame.mouse.get_pos()
