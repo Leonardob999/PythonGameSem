@@ -17,6 +17,10 @@ class Client:
 
         self.hintergrundbild = pygame.image.load(f"Game/MK5/images/background_0{selected + 1}.png").convert()
 
+        self.bg_music_rick = pygame.mixer.Sound("Game/MK5/sounds/bg_music_rick.mp3")  # Pfad anpassen, falls nötig
+
+        self.bg_music_rick.play() # Spiele hintergrundmusik
+
         self.host = host
 
         self.win_width = 1000
@@ -99,15 +103,16 @@ class Client:
                     me = players[player_index]
                     enemy = players[1 - player_index]
 
-                    me.x = 0
-                    enemy.x = self.win_width - enemy.width
-
-                    # Ball und Scores zuweisen
-                    if self.player_index == 1:
-                        self.ball = self.invert_ball(ball)
+                    if self.player_index == 0:
+                        me.x = 0
+                        enemy.x = self.win_width - enemy.width
                     else:
-                        self.ball = ball
-                    self.scores = scores
+                        me.x = self.win_width - me.width  # Spieler 2 bekommt die rechte Seite
+                        enemy.x = 0
+
+
+                        # Ball und Scores zuweisen
+                    self.ball = ball
 
                 else:
                     print("Ungültige Daten vom Server erhalten.")
@@ -141,9 +146,7 @@ class Client:
                 self.network.send("disconnect")
 
 
-            """self.bg_music_rick = pygame.mixer.Sound("Game/MK5/sounds/bg_music_rick.wav")  # Pfad anpassen, falls nötig
 
-            self.bg_music_rick.play() # Spiele hintergrundmusik"""
 
         pygame.quit()
         print("Spiel beendet.")
