@@ -110,7 +110,7 @@ class Client:
                     continue
 
                 # Zeichnen
-                self.win.fill((0, 0, 0))
+                self.win.blit(hintergrundbild, (0, 0))
                 me.draw(self.win)
                 enemy.draw(self.win)
                 self.ball.draw(self.win)
