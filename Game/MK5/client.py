@@ -99,7 +99,10 @@ class Client:
                     enemy.x = self.win_width - enemy.width
 
                     # Ball und Scores zuweisen
-                    self.ball = ball
+                    if self.player_index == 1:
+                        self.ball = self.invert_ball(ball)
+                    else:
+                        self.ball = ball
                     self.scores = scores
 
                 else:

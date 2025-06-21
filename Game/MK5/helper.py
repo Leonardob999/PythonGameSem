@@ -140,86 +140,105 @@ def shop_menu():
 
 
 pygame.init()
+
+# Fenstergröße und Anzeige konfigurieren
 WIN_WIDTH, WIN_HEIGHT = 1000, 800
 win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
-pygame.display.set_caption("Shop")
+pygame.display.set_caption("Shop")  # Fenster-Titel
 
+# Schriften definieren
 font = pygame.font.SysFont("arial", 28)
 desc_font = pygame.font.SysFont("arial", 20)
 
+# Pfad zur Speicherdatei für gekaufte und ausgewählte Hintergründe
 SAVE_FILE = "Game/MK5/shop_data.json"
 
+# Liste mit verfügbaren Hintergründen im Shop
 backgrounds = [
     {"id": 0, "name": "Wald", "thumb": "Game/MK5/images/background_01_thumb.png"},
     {"id": 1, "name": "Wüste", "thumb": "Game/MK5/images/background_02_thumb.png"},
     {"id": 2, "name": "Stadt", "thumb": "Game/MK5/images/background_03_thumb.png"},
 ]
 
+# Lese vorhandene Shop-Daten aus der JSON-Datei (oder verwende Defaults)
 def lade_shop_daten():
     if os.path.exists(SAVE_FILE):
         with open(SAVE_FILE, "r") as f:
             return json.load(f)
     return {"owned_backgrounds": [], "selected_background": 0}
 
+# Speichere aktualisierte Shop-Daten zurück in die JSON-Datei
 def speichere_shop_daten(data):
     with open(SAVE_FILE, "w") as f:
         json.dump(data, f)
 
+# Hauptfunktion für das Shop-Menü
 def shop_menu():
     shop_data = lade_shop_daten()
-    owned = shop_data.get("owned_backgrounds", [])
+    owned = shop_data.get("owned_backgrounds", [])  # Gekaufte Hintergründe
 
     run = True
     while run:
-        win.fill((0, 0, 0))
-        mouse_pos = pygame.mouse.get_pos()
+        win.fill((0, 0, 0))  # Fenster schwarz füllen
+        mouse_pos = pygame.mouse.get_pos()  # Aktuelle Mausposition
 
+        # Layout-Einstellungen für die Vorschaubilder
         thumb_size = (180, 100)
         spacing = 40
         total_width = len(backgrounds) * (thumb_size[0] + spacing) - spacing
         start_x = WIN_WIDTH // 2 - total_width // 2
-        y = 200
+        y = 200  # Y-Position der Thumbnails
 
+        # Zeige alle Hintergrundoptionen
         for i, bg in enumerate(backgrounds):
             x = start_x + i * (thumb_size[0] + spacing)
             rect = pygame.Rect(x, y, *thumb_size)
+            # Farbe ändern, wenn Maus drüber ist
             color = (150, 150, 200) if rect.collidepoint(mouse_pos) else (100, 100, 160)
             pygame.draw.rect(win, color, rect)
 
+            # Lade und zeichne das Vorschaubild
             img = pygame.image.load(bg["thumb"])
             img = pygame.transform.scale(img, (thumb_size[0] - 10, thumb_size[1] - 30))
             win.blit(img, (x + 5, y + 5))
 
+            # Zeige Namen des Hintergrunds
             name_label = desc_font.render(bg["name"], True, (255, 255, 255))
             win.blit(name_label, (x + (thumb_size[0] - name_label.get_width()) // 2, y + thumb_size[1] - 22))
 
+            # Zeige Status: "Gekauft" oder "Kaufen"
             if bg["id"] in owned:
                 status_label = desc_font.render("Gekauft", True, (0, 255, 0))
             else:
                 status_label = desc_font.render("Kaufen", True, (255, 255, 0))
             win.blit(status_label, (x + 10, y - 24))
 
+        # Zeichne "Zurück"-Button unten
         back_rect = pygame.Rect(WIN_WIDTH // 2 - 80, WIN_HEIGHT - 80, 160, 45)
         pygame.draw.rect(win, (70, 70, 90), back_rect)
         back_label = font.render("Zurück", True, (255, 255, 255))
         win.blit(back_label, (back_rect.x + 30, back_rect.y + 8))
 
-        pygame.display.update()
+        pygame.display.update()  # Aktualisiere den Bildschirm
 
+        # Ereignisbehandlung
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
 
+            # Bei Mausklick prüfen, ob ein Thumbnail oder der Zurück-Button angeklickt wurde
             if event.type == pygame.MOUSEBUTTONDOWN:
                 for bg in backgrounds:
                     x = start_x + bg["id"] * (thumb_size[0] + spacing)
                     rect = pygame.Rect(x, y, *thumb_size)
                     if rect.collidepoint(event.pos) and bg["id"] not in owned:
+                        # Hintergrund als "gekauft" speichern
                         owned.append(bg["id"])
                         shop_data["owned_backgrounds"] = owned
                         speichere_shop_daten(shop_data)
 
+                # Wenn "Zurück" gedrückt wurde, Menü verlassen
                 if back_rect.collidepoint(event.pos):
                     run = False
 

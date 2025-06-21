@@ -60,19 +60,10 @@ def draw_button(win, text, x, y, w, h, is_hovered=False):
 
 def start_game(mode):
     print("gameclinet wird gestartet")
-    """Erstellt und startet ein GameClient-Objekt. Der Modus kann None sein."""
-    """ if mode is not None:  # Spielmodus
-        print("mode")
-        game_client = GameClient(mode)
-    else:  # Nur Verbindung herstellen
-        print("Tritt Spiel bei...")
-        game_client = GameClient(None)
-    game_client.start() """
-
     server = GameServer(mode)
     server_thread = threading.Thread(target=server.start)
     server_thread.start()
-    time.sleep(10)
+    time.sleep(0.1)
     client = Client()
     client.start()
 
