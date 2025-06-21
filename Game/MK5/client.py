@@ -130,5 +130,10 @@ class Client:
                 self.run = False
                 self.network.send("disconnect")
 
+
+            """self.bg_music_rick = pygame.mixer.Sound("Game/MK5/sounds/bg_music_rick.wav")  # Pfad anpassen, falls nötig
+
+            self.bg_music_rick.play() # Spiele hintergrundmusik"""
+
         pygame.quit()
         print("Spiel beendet.")

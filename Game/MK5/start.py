@@ -70,7 +70,8 @@ def start_game(mode):
     game_client.start() """
 
     server = GameServer(mode)
-    server.start()
+    server_thread = threading.Thread(target=server.start)
+    server_thread.start()
     time.sleep(10)
     client = Client()
     client.start()

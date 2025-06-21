@@ -17,10 +17,13 @@ class Network:
             # Begrüßungsnachricht empfangen und ignorieren
             try:
                 data = self.client.recv(8192)
+                print("Empfangenes Begrüßungs-Datum:", data)  # <--- debug
                 if data:
                     msg = pickle.loads(data)
+                    print("Gepickeltes Begrüßungsobjekt:", msg)  # <--- debug
                     if msg == "connected":
                         self.connected_message_received = True
+
             except socket.timeout:
                 print("Timeout beim Empfang der Begrüßung vom Server.")
         except ConnectionRefusedError:

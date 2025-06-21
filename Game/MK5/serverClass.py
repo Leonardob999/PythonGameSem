@@ -69,22 +69,8 @@ class GameServer:
         print("[DEBUG] Begrüßung versendet")
 
         try:
-            print(f"[DEBUG] Client {player} verbunden. Warte auf Daten...")
-            data = conn.recv(8192)
-            if not data:
-                print(f"[DEBUG] Client {player} hat die Verbindung geschlossen.")
-                return
-            data = pickle.loads(data)
-            if isinstance(data, dict) and "name" in data:
-                self.game_mode = data
-                print(f"[DEBUG] Spielmodus vom Spieler 1 gesetzt: {self.game_mode}")
-                self.apply_game_mode(self.game_mode)
-                conn.sendall(pickle.dumps(("mode_set", True)))
-            else:
-                conn.sendall(pickle.dumps(("invalid_mode", False)))
-                return
+            print(f"[DEBUG] Client {player} verbunden. Starte Spiel-Loop...")
 
-            # Index senden
             index_sent = False
 
             while True:
@@ -92,19 +78,23 @@ class GameServer:
                 if not data:
                     print(f"[DEBUG] Client {player} hat die Verbindung geschlossen.")
                     break
+                # Daten vom Client laden (z.B. Spielerbewegung)
                 try:
                     loaded = pickle.loads(data)
                 except Exception:
                     continue
 
+                # Der Client fragt nach seinem Index
                 if loaded == {} and not index_sent:
                     conn.sendall(pickle.dumps(player))
                     index_sent = True
                     continue
 
+                # Spielerbewegung empfangen
                 if isinstance(loaded, dict) and 'y' in loaded:
                     self.player_inputs[player] = loaded
 
+                # Spieler-Logik
                 if any(self.player_inputs):
                     if self.player_inputs[0] is not None:
                         self.players[0].y = self.player_inputs[0]['y']
@@ -119,6 +109,7 @@ class GameServer:
                         self.scores[1] += 1
                         self.ball.reset_position()
 
+                # Antwort an den Client bauen
                 other_player = self.players[1] if player == 0 else self.players[0]
                 game_over = False
 

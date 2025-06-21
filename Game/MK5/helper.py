@@ -183,63 +183,89 @@ if __name__ == "__main__":
 
 
 
+pygame.init()
 
+# Fenstergröße
+WIN_WIDTH = 1000
+WIN_HEIGHT = 800
+win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
+pygame.display.set_caption("Einstellungen mit Inventar")
+
+# Beispiel-Sounds (hier nur initialisiert, du kannst eigene verwenden)
+collision_sound = pygame.mixer.Sound("Game/MK5/sounds/bounce.wav")
+bg_music_rick = pygame.mixer.Sound("Game/MK5/sounds/bg_music_rick.mp3")
+
+# Globale Einstellungen
+soundfx_on = True
+musik_volume = 0.5
+
+# Hintergrundbilder laden (Thumbnails erzeugen)
+background_images = [
+    pygame.image.load("Game/MK5/images/100.png"),
+    pygame.image.load("Game/MK5/images/500.png"),
+    pygame.image.load("Game/MK5/images/1000.png")
+]
+background_thumbs = [pygame.transform.scale(img, (100, 60)) for img in background_images]
+selected_bg = 0  # Standardhintergrund
 
 def einstellungen_menu():
-    # Globale Variablen um Einstellungen zu merken
-    global soundfx_on, musik_volume
+    global musik_volume, soundfx_on, selected_bg
 
-    # Initialwerte, falls nicht gesetzt
-    try:
-        soundfx_on
-    except NameError:
-        soundfx_on = True
-    try:
-        musik_volume
-    except NameError:
-        musik_volume = 0.5
-
-    run = True
     font = pygame.font.SysFont("arial", 32)
     info_font = pygame.font.SysFont("arial", 22)
 
-    # Schieberegler für Musiklautstärke
     slider_x = WIN_WIDTH // 2 - 160
     slider_y = 160
-    slider_w = 3200
+    slider_w = 320
     slider_h = 12
 
+    run = True
     while run:
-        win.fill((0,0,0))
-        pygame.mixer.init()
-        self.collision_sound.set_volume(musik_volume) # Lautstärke einstellen (Wert zwischen 0.0 und 1.0)
+        win.fill((0, 0, 0))
 
-        # Überschrift
-        label = font.render("Einstellungen", True, (255,255,255))
-        win.blit(label, (WIN_WIDTH//2-label.get_width()//2, 60))
+        # Sounds mit eingestellter Lautstärke
+        bg_music_rick.set_volume(musik_volume)
+        collision_sound.set_volume(musik_volume)
 
-        # --- Musiklautstärke-Schieberegler anzeigen ---
-        vol_label = info_font.render(f"Musiklautstärke: {int(musik_volume*100)}%", True, (200,200,200))
-        win.blit(vol_label, (slider_x, slider_y-36))
+        # --- Überschrift ---
+        label = font.render("Einstellungen", True, (255, 255, 255))
+        win.blit(label, (WIN_WIDTH // 2 - label.get_width() // 2, 60))
 
-        # Slider-Balken
-        pygame.draw.rect(win, (100,100,105), (slider_x, slider_y, slider_w, slider_h), border_radius=5)
-        # Slider 'Knopf'
-        knob_x = int(slider_x + musik_volume*slider_w)
-        pygame.draw.circle(win, (200,170,80), (knob_x, slider_y+slider_h//2), 16)
+        # --- Lautstärke-Schieberegler ---
+        vol_label = info_font.render(f"Musiklautstärke: {int(musik_volume * 100)}%", True, (200, 200, 200))
+        win.blit(vol_label, (slider_x, slider_y - 36))
+        pygame.draw.rect(win, (100, 100, 105), (slider_x, slider_y, slider_w, slider_h), border_radius=5)
+        knob_x = int(slider_x + musik_volume * slider_w)
+        pygame.draw.circle(win, (200, 170, 80), (knob_x, slider_y + slider_h // 2), 16)
 
-        # --- Soundeffekt-Button anzeigen ---
-        fx_btn_rect = pygame.Rect(WIN_WIDTH//2 - 120, 250, 240, 60)
-        fx_color = (80,200,80) if soundfx_on else (160,60,60)
+        # --- Soundeffekt-Button ---
+        fx_btn_rect = pygame.Rect(WIN_WIDTH // 2 - 120, 250, 240, 60)
+        fx_color = (80, 200, 80) if soundfx_on else (160, 60, 60)
         pygame.draw.rect(win, fx_color, fx_btn_rect)
-        fx_label = info_font.render("Soundeffekte: AN" if soundfx_on else "Soundeffekte: AUS", True, (10,10,10))
-        win.blit(fx_label, (fx_btn_rect.x + 24, fx_btn_rect.y + fx_btn_rect.height//2 - fx_label.get_height()//2))
+        fx_label = info_font.render("Soundeffekte: AN" if soundfx_on else "Soundeffekte: AUS", True, (10, 10, 10))
+        win.blit(fx_label, (fx_btn_rect.x + 24, fx_btn_rect.y + fx_btn_rect.height // 2 - fx_label.get_height() // 2))
 
-        # Zurück-Button
-        back_rect = pygame.Rect(WIN_WIDTH//2-80, WIN_HEIGHT-80, 160, 45)
-        pygame.draw.rect(win, (70,70,90), back_rect)
-        back_label = info_font.render("Zurück", True, (255,255,255))
-        win.blit(back_label, (back_rect.x+35, back_rect.y+8))
+        # --- Hintergrund-Inventar ---
+        inv_label = info_font.render("Hintergrund auswählen:", True, (255, 255, 255))
+        win.blit(inv_label, (WIN_WIDTH // 2 - inv_label.get_width() // 2, 340))
+
+        thumb_y = 380
+        thumb_margin = 20
+        thumb_x = WIN_WIDTH // 2 - ((len(background_thumbs) * (100 + thumb_margin)) // 2)
+
+        thumb_rects = []
+        for i, thumb in enumerate(background_thumbs):
+            rect = pygame.Rect(thumb_x + i * (100 + thumb_margin), thumb_y, 100, 60)
+            thumb_rects.append(rect)
+            win.blit(thumb, (rect.x, rect.y))
+            border_color = (255, 255, 0) if i == selected_bg else (100, 100, 100)
+            pygame.draw.rect(win, border_color, rect, 3)
+
+        # --- Zurück-Button ---
+        back_rect = pygame.Rect(WIN_WIDTH // 2 - 80, WIN_HEIGHT - 80, 160, 45)
+        pygame.draw.rect(win, (70, 70, 90), back_rect)
+        back_label = info_font.render("Zurück", True, (255, 255, 255))
+        win.blit(back_label, (back_rect.x + 35, back_rect.y + 8))
 
         pygame.display.update()
 
@@ -247,24 +273,37 @@ def einstellungen_menu():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mx, my = event.pos
-                # Schieberegler?
-                if (slider_x <= mx <= slider_x+slider_w) and (slider_y-12 <= my <= slider_y+slider_h+12):
+
+                # Schieberegler
+                if (slider_x <= mx <= slider_x + slider_w) and (slider_y - 12 <= my <= slider_y + slider_h + 12):
                     relativ = mx - slider_x
-                    musik_volume = min(max(relativ/slider_w, 0), 1)
+                    musik_volume = min(max(relativ / slider_w, 0), 1)
                     pygame.mixer.music.set_volume(musik_volume)
-                # Soundeffekt-Schalter?
-                if fx_btn_rect.collidepoint(mx,my):
+
+                # Soundeffekt-Schalter
+                if fx_btn_rect.collidepoint(mx, my):
                     soundfx_on = not soundfx_on
-                # Zurück?
-                if back_rect.collidepoint(mx,my):
+
+                # Zurück
+                if back_rect.collidepoint(mx, my):
                     run = False
+
+                # Klick auf Hintergrund-Thumbnail
+                for i, rect in enumerate(thumb_rects):
+                    if rect.collidepoint(mx, my):
+                        selected_bg = i
 
         # Ziehen auf Schieberegler
         if pygame.mouse.get_pressed()[0]:
             mx, my = pygame.mouse.get_pos()
-            if (slider_x <= mx <= slider_x+slider_w) and (slider_y-12 <= my <= slider_y+slider_h+12):
+            if (slider_x <= mx <= slider_x + slider_w) and (slider_y - 12 <= my <= slider_y + slider_h + 12):
                 relativ = mx - slider_x
-                musik_volume = min(max(relativ/slider_w, 0), 1)
+                musik_volume = min(max(relativ / slider_w, 0), 1)
                 pygame.mixer.music.set_volume(musik_volume)
+
+
+
+    """inventar"""
