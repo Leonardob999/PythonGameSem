@@ -1,13 +1,20 @@
 import pygame
 from network import Network
 from player import Player
+import json
+
+shop_data = json.load(open("Game/MK5/shop_data.json"))
+selected = shop_data["selected_background"]
+hintergrundbild = pygame.image.load(f"Game/MK5/images/background_0{selected+1}.png")
 
 class Client:
-    def __init__(self):
+    def __init__(self, host = "127.0.0.1"):
         pygame.init()
         pygame.mixer.init()  # Initialisiert den Soundmixer
 
         pygame.joystick.init()
+
+        self.host = host
 
         self.win_width = 1000
         self.win_height = 800
@@ -15,7 +22,7 @@ class Client:
         pygame.display.set_caption("Pong")
 
         self.player = Player(0, 425, 25, 150, (255, 255, 255))
-        self.network = Network()
+        self.network = Network(self.host)
         self.run = True
         self.scores = [0, 0]
         self.ball = None
@@ -82,32 +89,28 @@ class Client:
                     self.run = False
                     break
 
-                if isinstance(data, tuple) and len(data) == 4:
-                    other_player, ball, scores, game_over = data
+                if isinstance(data, tuple) and len(data) == 5:
+                    players, player_index, ball, scores, game_over = data
 
-                    # Spieler 0 sieht alles unverändert, Spieler 1 invertiert!
-                    if self.player_index == 1:
-                        # Position von self und Gegner switchen
-                        other_player = self.invert_player(other_player)
-                        ball = self.invert_ball(ball)
-                        scores = self.invert_scores(scores)
-                        self.player.x = 0  # immer links anzeigen
-                    else:
-                        self.player.x = 0
+                    me = players[player_index]
+                    enemy = players[1 - player_index]
 
+                    me.x = 0
+                    enemy.x = self.win_width - enemy.width
+
+                    # Ball und Scores zuweisen
                     self.ball = ball
                     self.scores = scores
+
                 else:
                     print("Ungültige Daten vom Server erhalten.")
                     continue
 
                 # Zeichnen
                 self.win.fill((0, 0, 0))
-                self.player.draw(self.win)
-                if other_player:
-                    other_player.draw(self.win)
-                if self.ball:
-                    self.ball.draw(self.win)
+                me.draw(self.win)
+                enemy.draw(self.win)
+                self.ball.draw(self.win)
 
                 font = pygame.font.SysFont("comicsans", 36)
                 score_text = font.render(

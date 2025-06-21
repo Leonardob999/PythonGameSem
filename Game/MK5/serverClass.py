@@ -17,7 +17,7 @@ DEFAULTS = {
 
 
 class GameServer:
-    def __init__(self, game_mode, host="127.0.0.1", port=5555):
+    def __init__(self, game_mode, host="0.0.0.0", port=5555):
         if not game_mode:
             self.apply_game_mode(DEFAULTS)
         else:
@@ -120,9 +120,10 @@ class GameServer:
                         game_over = "Player 2 gewinnt!"
 
                 response = pickle.dumps(
-                    (other_player, self.ball, self.scores, game_over)
+                    (self.players, player, self.ball, self.scores, game_over)
                 )
                 conn.sendall(response)
+
                 time.sleep(1 / 60.0)
         except Exception as e:
             print(f"[ERROR] Fehler bei Client {player}: {e}")

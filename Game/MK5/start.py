@@ -1,14 +1,13 @@
 import pickle
 
 import pygame
-import pygame_textinput
 import sys
 from serverClass import GameServer
 from network import Network
 import threading
 import time
 from helper import *  # Importiere das Shop-Menü aus helper.py
-from Game.MK5.client import Client
+from client import Client
 
 pygame.init()
 pygame.mixer.init()  # Initialisiert den Soundmixer
@@ -31,14 +30,14 @@ font = pygame.font.SysFont("comicsans", 50)
 GAME_MODE_PRESETS = [
     {
         "name": "infinite",
-        "ball_speed": 4,
-        "player_speed": 6,
+        "ball_speed": 3,
+        "player_speed": 9,
         "max_score": None  # Unendlich
     },
     {
         "name": "best_of_7",
-        "ball_speed": 5,
-        "player_speed": 6,
+        "ball_speed": 8,
+        "player_speed": 1,
         "max_score": 4  # 4 Siege für den Gewinn
     },
     {
@@ -134,8 +133,12 @@ def server_selection():
         # Bildschirm aktualisieren
         win.fill(BLACK)
 
+        ip_l = "100.101.29.26"  # IP für linken Button
+        ip_r = "100.103.224.2"
+
         # Schaltflächen zeichnen
-        join_server_button = draw_button(win, "Infinite Mode", WIN_WIDTH // 2 - 150, 250, 350, 80)
+        join_server_button_l = draw_button(win, "100.101.29.26", WIN_WIDTH // 2 - 450/2, 250, 450, 80)
+        join_server_button_r = draw_button(win, "100.103.224.2", WIN_WIDTH // 2 - 450/2, 350, 450, 80)
         back_button = draw_button(win, "Zurück", WIN_WIDTH // 2 - 150, 550, 350, 80)
 
         # Ereignisse behandeln
@@ -144,20 +147,31 @@ def server_selection():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if join_server_button.collidepoint(event.pos):
-                    """macht join server"""
+                if join_server_button_l.collidepoint(event.pos):
+                    join_server(ip_l)
+                if join_server_button_r.collidepoint(event.pos):
+                    join_server(ip_r)
                 elif back_button.collidepoint(event.pos):
                     run = False  # Zurück zum Hauptmenü
 
         # Mauspositionen für Hover-Effekte
         mouse_pos = pygame.mouse.get_pos()
-        draw_button(win, "server beitreten", WIN_WIDTH // 2 - 150, 250, 350, 80,
-                    join_server_button.collidepoint(mouse_pos))
+        draw_button(win, "Lennart's Server Beitreten", WIN_WIDTH // 2 - 450/2, 250, 450, 80,
+                    join_server_button_l.collidepoint(mouse_pos))
+
+        draw_button(win, "Robin's Server Beitreten", WIN_WIDTH // 2 - 450/2, 350, 450, 80,
+                    join_server_button_r.collidepoint(mouse_pos))
 
         draw_button(win, "Zurück", WIN_WIDTH // 2 - 150, 550, 350, 80,
                     back_button.collidepoint(mouse_pos))
 
         pygame.display.update()
+
+def join_server(ip_address):
+    # Hier musst du deine Netzwerkverbindung initialisieren,
+    # z.B. indem du die IP weitergibst:
+    client = Client(ip_address)  # verwende den Port wie benötigt
+    client.start()
 
 
 def main_menu():
