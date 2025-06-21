@@ -19,7 +19,7 @@ class Client:
         self.hintergrundbild = pygame.image.load(f"Game/MK5/images/background_0{selected + 1}.png").convert()
 
         shop_data = json.load(open("Game/MK5/shop_data.json"))
-        musik_volume = shop_data.get("music_volume", 0.5)  # Standard 0.5, falls nicht gesetzt
+        musik_volume = shop_data.get("music_volume")  # Standard 0.5, falls nicht gesetzt
 
         self.bg_music_rick = pygame.mixer.Sound("Game/MK5/sounds/bg_music_rick.mp3")
         self.bg_music_rick.set_volume(musik_volume)  # Lautstärke einstellen
