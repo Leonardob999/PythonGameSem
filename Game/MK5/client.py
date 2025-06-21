@@ -107,7 +107,7 @@ class Client:
                     me = players[player_index]
                     enemy = players[1 - player_index]
 
-
+                    """eeeee"""
                     self.ball = ball
                     self.scores = scores
 
