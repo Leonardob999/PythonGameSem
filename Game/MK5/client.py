@@ -102,22 +102,13 @@ class Client:
                 if isinstance(data, tuple) and len(data) == 5:
                     players, player_index, ball, scores, game_over = data
 
+
+
                     me = players[player_index]
                     enemy = players[1 - player_index]
 
-                    if self.player_index == 0:
-                        me.x = 0
-                        enemy.x = self.win_width - enemy.width
-                    else:
-                        me.x = self.win_width - me.width  # Spieler 2 bekommt die rechte Seite
-                        enemy.x = 0
 
-
-                        # Ball und Scores zuweisen
-                    if self.player_index == 1:
-                        self.ball = ball
-                    else:
-                        self.ball = self.invert_ball(ball)
+                    self.ball = ball
                     self.scores = scores
 
                 else:
