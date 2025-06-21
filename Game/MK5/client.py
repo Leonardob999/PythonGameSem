@@ -2,12 +2,13 @@ import pygame
 from network import Network
 from player import Player
 
-class GameClient:
-    def __init__(self, mode):
+class Client:
+    def __init__(self):
         pygame.init()
+        pygame.mixer.init()  # Initialisiert den Soundmixer
+
         pygame.joystick.init()
 
-        self.mode = {"name": mode} if isinstance(mode, str) else mode
         self.win_width = 1000
         self.win_height = 800
         self.win = pygame.display.set_mode((self.win_width, self.win_height))
@@ -39,19 +40,14 @@ class GameClient:
 
     def start(self):
         try:
-            # Sende Modus-Info an den Server (Spielstart/Namensauswahl)
-            response = self.network.send(self.mode)
-            if isinstance(response, tuple) and response[0] == "mode_set":
-                # Hole mit leerem Dict den eigenen Index (0 oder 1)
-                reply = self.network.send({})
-                if isinstance(reply, int):
-                    self.player_index = reply
-                else:
-                    self.player_index = 0
-                self.game_loop()
+            # Verbindung zum Server aufbauen und Index erhalten
+            reply = self.network.send("ready")
+            self.network.send("ready")
+            if isinstance(reply, int):
+                self.player_index = reply
             else:
-                print("Es gab ein Problem beim Setzen des Spielmodus. Antwort:", response)
-                return
+                self.player_index = 0
+            self.game_loop()
         except Exception as e:
             print(f"Fehler beim Starten des Spiels: {e}")
 

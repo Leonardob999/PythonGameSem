@@ -7,9 +7,10 @@ from network import Network
 import threading
 import time
 from helper import *  # Importiere das Shop-Menü aus helper.py
-from Game.MK5.client import GameClient
+from Game.MK5.client import Client
 
 pygame.init()
+pygame.mixer.init()  # Initialisiert den Soundmixer
 
 # Fenstergröße festlegen
 WIN_WIDTH, WIN_HEIGHT = 1000, 800
@@ -70,9 +71,9 @@ def start_game(mode):
 
     server = GameServer(mode)
     server.start()
-    time.sleep(1)
-    game_client = GameClient(None)
-    game_client.start()
+    time.sleep(10)
+    client = Client()
+    client.start()
 
     print("gameclinet wurde gestartet")
 

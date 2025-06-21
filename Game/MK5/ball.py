@@ -13,6 +13,10 @@ class Ball:
         self.base_speed = 7
         self.reset_position()
 
+        # Lade den Sound für die Kollision
+        self.collision_sound = pygame.mixer.Sound("Game/MK5/sounds/bounce.wav")  # Pfad anpassen!
+
+
     def reset_position(self):
         self.x = self.start_x
         self.y = self.start_y
@@ -59,6 +63,9 @@ class Ball:
             return 1
 
         if self.intersects(player1) and self.vel_x < 0:
+            # Spiele Kollision-Sound
+            self.collision_sound.play()
+
             self.x = player1.x + player1.width + self.radius
             impact_pos = (self.y - player1.y) / player1.height
             impact_offset = (impact_pos - 0.5) * 2
@@ -66,10 +73,15 @@ class Ball:
             self.vel_x = abs(self.vel_x)
 
         elif self.intersects(player2) and self.vel_x > 0:
+            # Spiele Kollision-Sound
+            self.collision_sound.play()
+
             self.x = player2.x - self.radius
             impact_pos = (self.y - player2.y) / player2.height
             impact_offset = (impact_pos - 0.5) * 2
             self.vel_y = impact_offset * self.max_speed
             self.vel_x = -abs(self.vel_x)
+
+        """self.collision_sound.set_volume(0.5)  # Lautstärke einstellen (Wert zwischen 0.0 und 1.0)"""
 
         return 0

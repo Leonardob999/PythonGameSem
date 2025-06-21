@@ -211,13 +211,15 @@ def einstellungen_menu():
 
     while run:
         win.fill((0,0,0))
+        pygame.mixer.init()
+        self.collision_sound.set_volume(musik_volume) # Lautstärke einstellen (Wert zwischen 0.0 und 1.0)
 
         # Überschrift
         label = font.render("Einstellungen", True, (255,255,255))
         win.blit(label, (WIN_WIDTH//2-label.get_width()//2, 60))
 
         # --- Musiklautstärke-Schieberegler anzeigen ---
-        vol_label = info_font.render(f"Musiklautstärke: {int(musik_volume*10000)}%", True, (200,200,200))
+        vol_label = info_font.render(f"Musiklautstärke: {int(musik_volume*100)}%", True, (200,200,200))
         win.blit(vol_label, (slider_x, slider_y-36))
 
         # Slider-Balken

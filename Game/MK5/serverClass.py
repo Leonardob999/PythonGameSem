@@ -17,8 +17,11 @@ DEFAULTS = {
 
 
 class GameServer:
-    def __init__(self, game_mode=None, host="127.0.0.1", port=5555):
-        self.game_mode = game_mode
+    def __init__(self, game_mode, host="127.0.0.1", port=5555):
+        if not game_mode:
+            self.apply_game_mode(DEFAULTS)
+        else:
+            self.game_mode = game_mode
         self.host = host
         self.port = port
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
