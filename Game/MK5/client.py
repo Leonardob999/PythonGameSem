@@ -17,7 +17,7 @@ class Client:
         pygame.joystick.init()
 
         shop_data = json.load(open("Game/MK5/shop_data.json"))
-        selected = shop_data["selected_background", 0]
+        selected = shop_data["selected_background"]
 
         self.player_index = 0
 

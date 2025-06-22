@@ -1,5 +1,6 @@
 import pickle
 import json
+import os
 import pygame
 import sys
 from serverClass import GameServer
@@ -167,6 +168,37 @@ def main_menu():
     """Hauptmenü-Funktion."""
     run = True
     while run:
+
+        path = "Game/MK5/shop_data.json"
+
+        default_data = {
+            "owned_backgrounds": [0],
+            "selected_background": 0,
+            "owned_songs": [0],
+            "selected_song": 0,
+            "music_volume": 0.5,
+            "xp": 0
+        }
+
+        if os.path.exists(path):
+            try:
+                with open(path, "r") as f:
+                    shop_data = json.load(f)
+                    if not shop_data:  # Falls Datei leer ist (leeres dict)
+                        shop_data = default_data
+            except json.JSONDecodeError:
+                shop_data = default_data
+        else:
+            shop_data = default_data
+
+        # Fehlende Keys ergänzen (optional, falls schon Daten da sind)
+        for key, val in default_data.items():
+            if key not in shop_data:
+                shop_data[key] = val
+
+        with open(path, "w") as f:
+            json.dump(shop_data, f, indent=4)
+
         # Bildschirm aktualisieren
         win.fill(BLACK)
 
