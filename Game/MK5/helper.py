@@ -195,6 +195,7 @@ def shop_menu():
     shop_data = lade_shop_daten()
     owned_bgs = shop_data.get("owned_backgrounds", [])
     owned_songs = shop_data.get("owned_songs", [])
+    xp = shop_data.get("xp", 0)
 
     run = True
     while run:
@@ -224,7 +225,7 @@ def shop_menu():
             if bg["id"] in owned_bgs:
                 status_label = desc_font.render("Gekauft", True, (0, 255, 0))
             else:
-                status_label = desc_font.render("Kaufen", True, (255, 255, 0))
+                status_label = desc_font.render("Kaufen (20 XP)", True, (255, 255, 0))
             win.blit(status_label, (x + 10, y - 24))
 
         # --- Liedkaufbereich ---
@@ -244,8 +245,12 @@ def shop_menu():
             if song["id"] in owned_songs:
                 status = desc_font.render("Gekauft", True, (0, 200, 0))
             else:
-                status = desc_font.render("Kaufen", True, (255, 255, 0))
+                status = desc_font.render("Kaufen (25 XP)", True, (255, 255, 0))
             win.blit(status, (rect.x + 10, rect.y - 22))
+
+        # XP-Anzeige
+        xp_label = desc_font.render(f"XP: {xp}", True, (255, 255, 255))
+        win.blit(xp_label, (10, 10))
 
         # Zurück-Button
         back_rect = pygame.Rect(WIN_WIDTH // 2 - 80, WIN_HEIGHT - 80, 160, 45)
@@ -267,18 +272,28 @@ def shop_menu():
                     x = start_x + bg["id"] * (thumb_size[0] + spacing)
                     rect = pygame.Rect(x, y, *thumb_size)
                     if rect.collidepoint(event.pos) and bg["id"] not in owned_bgs:
-                        owned_bgs.append(bg["id"])
-                        shop_data["owned_backgrounds"] = owned_bgs
-                        speichere_shop_daten(shop_data)
+                        if xp >= 20:
+                            owned_bgs.append(bg["id"])
+                            xp -= 20
+                            shop_data["owned_backgrounds"] = owned_bgs
+                            shop_data["xp"] = xp
+                            speichere_shop_daten(shop_data)
+                        else:
+                            print("Nicht genug XP für diesen Hintergrund!")
 
                 # Lieder kaufen
                 for song in songs:
                     x = song_start_x + song["id"] * (song_box_w + spacing)
                     rect = pygame.Rect(x, song_y, song_box_w, song_box_h)
                     if rect.collidepoint(event.pos) and song["id"] not in owned_songs:
-                        owned_songs.append(song["id"])
-                        shop_data["owned_songs"] = owned_songs
-                        speichere_shop_daten(shop_data)
+                        if xp >= 25:
+                            owned_songs.append(song["id"])
+                            xp -= 25
+                            shop_data["owned_songs"] = owned_songs
+                            shop_data["xp"] = xp
+                            speichere_shop_daten(shop_data)
+                        else:
+                            print("Nicht genug XP für dieses Lied!")
 
                 # Zurück-Button
                 if back_rect.collidepoint(event.pos):
