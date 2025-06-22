@@ -36,9 +36,22 @@ GAME_MODE_PRESETS = [
         "max_score": None  # Unendlich
     },
     {
+        "name": "dein_mudda",
+        "player_speed": 5,
+        "ball_radius": 2,
+        "max_ball_speed": 88,
+        "base_ball_speed": 66,
+        "max_score": None  # Unendlich
+    },
+    {
         "name": "best_of_7",
         "player_speed": 1,
         "max_score": 4  # 4 Siege für den Gewinn
+    },
+    {
+        "name": "best_of_28",
+        "player_speed": 1,
+        "max_score": 63747  # 4 Siege für den Gewinn
     },
     {
         "name": "gauntlet",
@@ -68,18 +81,31 @@ def start_game(mode):
 
     print("gameclinet wurde gestartet")
 
+def format_mode_name(name):
+    return name.replace("_", " ").title()
+
 def host_menu():
     """Menü für die Auswahl eines Spielmodus."""
+    BUTTON_WIDTH = 350
+    BUTTON_HEIGHT = 80
+    BUTTON_X = WIN_WIDTH // 2 - 150
+    BUTTON_Y_START = 250
+    BUTTON_Y_SPACING = 100
     run = True
     while run:
         # Bildschirm aktualisieren
         win.fill(BLACK)
+        # Buttons erstellen & zeichnen
+        mode_buttons = []
+        for i, preset in enumerate(GAME_MODE_PRESETS):
+            display_name = format_mode_name(preset["name"])
+            y = BUTTON_Y_START + i * BUTTON_Y_SPACING
+            button_rect = draw_button(win, display_name, BUTTON_X, y, BUTTON_WIDTH, BUTTON_HEIGHT)
+            mode_buttons.append((button_rect, preset))
 
-        # Schaltflächen zeichnen
-        infinite_mode_button = draw_button(win, "Infinite Mode", WIN_WIDTH // 2 - 150, 250, 350, 80)
-        best_of_7_button = draw_button(win, "Best of 7", WIN_WIDTH // 2 - 150, 350, 350, 80)
-        gauntlet_mode_button = draw_button(win, "Gauntlet Mode", WIN_WIDTH // 2 - 150, 450, 350, 80)
-        back_button = draw_button(win, "Zurück", WIN_WIDTH // 2 - 150, 550, 350, 80)
+        # Back-Button
+        back_button_y = BUTTON_Y_START + len(GAME_MODE_PRESETS) * BUTTON_Y_SPACING
+        back_button = draw_button(win, "Zurück", BUTTON_X, back_button_y, BUTTON_WIDTH, BUTTON_HEIGHT)
 
         # Ereignisse behandeln
         for event in pygame.event.get():
@@ -87,31 +113,24 @@ def host_menu():
                 pygame.quit()
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
-                if infinite_mode_button.collidepoint(event.pos):
-                    # Starte "Infinite Mode"
-                    start_game(GAME_MODE_PRESETS[0])  # Spielmodus "infinite" starten
-                    run = False  # Menü beenden
-                elif best_of_7_button.collidepoint(event.pos):
-                    # Starte "Best of 7"
-                    start_game(GAME_MODE_PRESETS[1])  # Spielmodus "best_of_7" starten
-                    run = False  # Menü beenden
-                elif gauntlet_mode_button.collidepoint(event.pos):
-                    # Starte "Gauntlet Mode"
-                    start_game(GAME_MODE_PRESETS[2])  # Spielmodus "gauntlet" starten
-                    run = False  # Menü beenden
-                elif back_button.collidepoint(event.pos):
-                    run = False  # Zurück zum Hauptmenü
+                for button_rect, preset in mode_buttons:
+                    if button_rect.collidepoint(event.pos):
+                        start_game(preset)
+                        run = False  # Menü beenden
+                        break
+                else:
+                    if back_button.collidepoint(event.pos):
+                        run = False  # Zurück zum Hauptmenü
 
-                # Mauspositionen für Hover-Effekte
-                mouse_pos = pygame.mouse.get_pos()
-                draw_button(win, "Infinite Mode", WIN_WIDTH // 2 - 150, 250, 350, 80,
-                            infinite_mode_button.collidepoint(mouse_pos))
-                draw_button(win, "Best of 7", WIN_WIDTH // 2 - 150, 350, 350, 80,
-                            best_of_7_button.collidepoint(mouse_pos))
-                draw_button(win, "Gauntlet Mode", WIN_WIDTH // 2 - 150, 450, 350, 80,
-                            gauntlet_mode_button.collidepoint(mouse_pos))
-                draw_button(win, "Zurück", WIN_WIDTH // 2 - 150, 550, 350, 80,
-                            back_button.collidepoint(mouse_pos))
+            # Mauspositionen für Hover-Effekte
+            mouse_pos = pygame.mouse.get_pos()
+            for i, (button_rect, preset) in enumerate(mode_buttons):
+                display_name = format_mode_name(preset["name"])
+                y = BUTTON_Y_START + i * BUTTON_Y_SPACING
+                draw_button(win, display_name, BUTTON_X, y, BUTTON_WIDTH, BUTTON_HEIGHT,
+                            button_rect.collidepoint(mouse_pos))
+            draw_button(win, "Zurück", BUTTON_X, back_button_y, BUTTON_WIDTH, BUTTON_HEIGHT,
+                        back_button.collidepoint(mouse_pos))
 
         pygame.display.update()
 
