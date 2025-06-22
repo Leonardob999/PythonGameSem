@@ -367,15 +367,16 @@ def lade_shop_daten():
     else:
         data = {}
 
-    # Standardwerte setzen, falls sie fehlen
-    if "owned_backgrounds" not in data:
-        data["owned_backgrounds"] = []
-    if "selected_background" not in data:
-        data["selected_background"] = 0
-    if "music_volume" not in data:
-        data["music_volume"] = 0.5  # Standardlautstärke
+    # Standardwerte setzen
+    data.setdefault("owned_backgrounds", [0])
+    data.setdefault("selected_background", 0)
+    data.setdefault("owned_songs", [0])
+    data.setdefault("selected_song", 0)
+    data.setdefault("music_volume", 0.5)
+    data.setdefault("soundfx_on", True)
 
     return data
+
 
 
 def speichere_shop_daten(data):
@@ -383,7 +384,9 @@ def speichere_shop_daten(data):
         json.dump(data, f)
 
 def einstellungen_menu():
+
     shop_data = lade_shop_daten()
+    soundfx_on = shop_data.get("soundfx_on", True)
     owned_backgrounds = shop_data.get("owned_backgrounds", [])
     selected_bg = shop_data.get("selected_background", 0)
 
@@ -391,7 +394,6 @@ def einstellungen_menu():
     selected_song = shop_data.get("selected_song", 0)
 
     musik_volume = shop_data.get("music_volume") #vielleicht , 0.5 hinten ran
-    soundfx_on = True
 
     # Slider Position
     slider_x = WIN_WIDTH // 2 - 160
@@ -413,7 +415,7 @@ def einstellungen_menu():
         knob_x = int(slider_x + musik_volume * slider_w)
         pygame.draw.circle(win, (200, 170, 80), (knob_x, slider_y + slider_h // 2), 16)
 
-        # Soundeffekte
+        # Zeichne den Schalter
         fx_btn_rect = pygame.Rect(WIN_WIDTH // 2 - 120, 250, 240, 60)
         fx_color = (80, 200, 80) if soundfx_on else (160, 60, 60)
         pygame.draw.rect(win, fx_color, fx_btn_rect)
@@ -479,9 +481,11 @@ def einstellungen_menu():
                     shop_data["music_volume"] = musik_volume
                     speichere_shop_daten(shop_data)
 
-                # Soundeffekte
-                if fx_btn_rect.collidepoint(mx, my):
+                # Sound-Schalter
+                if fx_btn_rect.collidepoint(event.pos):
                     soundfx_on = not soundfx_on
+                    shop_data["soundfx_on"] = soundfx_on
+                    speichere_shop_daten(shop_data)
 
                 # Zurück
                 if back_rect.collidepoint(mx, my):

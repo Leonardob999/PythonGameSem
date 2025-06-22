@@ -170,7 +170,6 @@ def main_menu():
     while run:
 
         path = "Game/MK5/shop_data.json"
-
         default_data = {
             "owned_backgrounds": [0],
             "selected_background": 0,
@@ -190,6 +189,18 @@ def main_menu():
                 shop_data = default_data
         else:
             shop_data = default_data
+
+        def lade_shop_daten():
+            if os.path.exists(SAVE_FILE):
+                with open(SAVE_FILE, "r") as f:
+                    data = json.load(f)
+            else:
+                data = {}
+
+            # Standardwerte setzen
+            data.setdefault("soundfx_on", True)
+
+            return data
 
         # Fehlende Keys ergänzen (optional, falls schon Daten da sind)
         for key, val in default_data.items():

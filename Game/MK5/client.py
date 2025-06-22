@@ -33,15 +33,18 @@ class Client:
         shop_data = json.load(open("Game/MK5/shop_data.json"))
         musik_volume = shop_data.get("music_volume", 0.5)
         selected_song = shop_data.get("selected_song", 0)
+        soundfx = shop_data.get("soundfx_on", True)
 
         if 0 <= selected_song < len(songs):
             song_path = songs[selected_song]
         else:
-            song_path = songs[0]  # Fallback
+            song_path = songs[0]
 
         self.bg_music = pygame.mixer.Sound(song_path)
         self.bg_music.set_volume(musik_volume)
-        self.bg_music.play(-1)
+
+        if soundfx:
+            self.bg_music.play(-1)
 
         self.host = host
 

@@ -1,16 +1,15 @@
 {
     "owned_backgrounds": [
         0,
-        1,
         2
     ],
     "selected_background": 2,
     "owned_songs": [
         0,
-        1,
         2
     ],
-    "selected_song": 1,
-    "music_volume": 0.7,
-    "xp": 11
+    "selected_song": 2,
+    "music_volume": 0.203125,
+    "xp": 55,
+    "soundfx_on": true
 }
