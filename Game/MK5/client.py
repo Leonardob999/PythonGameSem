@@ -1,4 +1,5 @@
 import pygame
+import os
 from network import Network
 from player import Player
 import json
@@ -82,6 +83,46 @@ class Client:
         except Exception as e:
             print(f"Fehler beim Starten des Spiels: {e}")
 
+    def calculate_xp(self, score_winner, score_loser):
+        max_score = 7
+        max_xp = 100
+
+        diff = score_winner - score_loser
+        if diff <= 0:
+            return 0, 0  # Ungültiges Ergebnis, keine XP
+
+        winner_xp = (diff / max_score) * max_xp
+        loser_xp = winner_xp / 4
+
+        return round(winner_xp), round(loser_xp)
+
+    def save_xp(self, winner_xp, loser_xp):
+        # shop_data laden
+        path = "Game/MK5/shop_data.json"
+        if os.path.exists(path):
+            with open(path, "r") as f:
+                shop_data = json.load(f)
+        else:
+            shop_data = {}
+
+        # Bestimmen, ob eigener Spieler Gewinner oder Verlierer ist
+        # self.player_index ist 0 oder 1
+        # scores enthält z.B. [7, 2] — Index = Spieler
+        winner_index = 0 if self.scores[0] > self.scores[1] else 1
+
+        if self.player_index == winner_index:
+            # Eigener Spieler hat gewonnen
+            current_xp = shop_data.get("xp", 0)
+            shop_data["xp"] = current_xp + winner_xp
+        else:
+            # Eigener Spieler hat verloren
+            current_xp = shop_data.get("xp", 0)
+            shop_data["xp"] = current_xp + loser_xp
+
+        # zurück in Datei schreiben
+        with open(path, "w") as f:
+            json.dump(shop_data, f, indent=4)
+
     def game_loop(self):
         clock = pygame.time.Clock()
         controller = None
@@ -145,9 +186,18 @@ class Client:
                 pygame.display.update()
 
                 if game_over:
+                    winner_score = max(self.scores)
+                    loser_score = min(self.scores)
+
+                    winner_xp, loser_xp = self.calculate_xp(winner_score, loser_score)
+                    print(f"Gewinner XP: {winner_xp}, Verlierer XP: {loser_xp}")
+
+                    self.save_xp(winner_xp, loser_xp)
+
                     font_big = pygame.font.SysFont("comicsans", 100)
                     text = font_big.render(str(game_over), 1, (255, 0, 0))
-                    self.win.blit(text, (self.win_width // 2 - text.get_width() // 2, self.win_height // 2 - text.get_height() // 2))
+                    self.win.blit(text, (self.win_width // 2 - text.get_width() // 2,
+                                         self.win_height // 2 - text.get_height() // 2))
                     pygame.display.update()
                     pygame.time.delay(4000)
                     self.run = False
@@ -156,8 +206,6 @@ class Client:
                 print(f"Fehler in der Spielschleife: {e}")
                 self.run = False
                 self.network.send("disconnect")
-
-
 
 
         pygame.quit()

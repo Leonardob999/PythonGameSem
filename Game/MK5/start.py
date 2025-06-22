@@ -1,5 +1,5 @@
 import pickle
-
+import json
 import pygame
 import sys
 from serverClass import GameServer
@@ -212,9 +212,12 @@ def main_menu():
             draw_button(win, text, WIN_WIDTH // 2 - 150, y, 350, 80, hovered)
 
 
+        # shop_data laden
+        with open("Game/MK5/shop_data.json", "r") as f:
+            shop_data = json.load(f)
 
-        # Beispiel XP-Wert
-        xp_amount = 666  # Dein aktueller XP-Wert
+        # XP aus den Daten holen (z.B. 'winner_xp' oder dein tatsächlicher XP-Wert)
+        xp_amount = shop_data.get("xp", 0)  # oder shop_data.get("total_xp", 0), je nach Struktur
 
         # Schriftart für die XP-Anzeige
         xp_font = pygame.font.SysFont("arial", 30)  # Schriftart und Größe definieren
