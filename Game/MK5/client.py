@@ -19,6 +19,8 @@ class Client:
         shop_data = json.load(open("Game/MK5/shop_data.json"))
         selected = shop_data["selected_background"]
 
+        self.player_index = 0
+
         self.hintergrundbild = pygame.image.load(f"Game/MK5/images/background_0{selected + 1}.png").convert()
 
 
@@ -157,7 +159,7 @@ class Client:
                 if isinstance(data, tuple) and len(data) == 5:
                     players, player_index, ball, scores, game_over = data
 
-
+                    self.player_index = player_index
 
                     me = players[player_index]
                     enemy = players[1 - player_index]

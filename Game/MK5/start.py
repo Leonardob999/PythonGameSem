@@ -31,7 +31,7 @@ GAME_MODE_PRESETS = [
     {
         "name": "infinite",
         "player_speed": 9,
-        "ball_radius": 30,
+        "ball_radius": 7,
         "max_score": None  # Unendlich
     },
     {
