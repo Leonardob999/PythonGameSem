@@ -136,6 +136,9 @@ class Client:
             controller = pygame.joystick.Joystick(0)
             controller.init()
 
+        button_rect = pygame.Rect(self.win_width - 210, 20, 180, 50)
+        font_button = pygame.font.SysFont("comicsans", 32)
+
         while self.run:
             clock.tick(60)
             try:
@@ -143,6 +146,11 @@ class Client:
                     if event.type == pygame.QUIT:
                         self.run = False
                         self.network.send("disconnect")
+                    if event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        mouse_pos = pygame.mouse.get_pos()
+                        if button_rect.collidepoint(mouse_pos):
+                            self.run = False
+                            self.network.send("disconnect")
 
                 # Spielersteuerung bewegen (Tastatur ODER Controller)
                 self.player.move(controller)
@@ -162,14 +170,9 @@ class Client:
 
                 if isinstance(data, tuple) and len(data) == 5:
                     players, player_index, ball, scores, game_over = data
-
                     self.player_index = player_index
-
                     me = players[player_index]
                     enemy = players[1 - player_index]
-
-                    """eeeee"""
-                    """eeeeererr"""
                     self.ball = ball
                     self.scores = scores
 
@@ -188,6 +191,12 @@ class Client:
                     f"Player 1: {self.scores[0]}   Player 2: {self.scores[1]}", True, (255, 255, 255)
                 )
                 self.win.blit(score_text, (self.win_width // 2 - score_text.get_width() // 2, 40))
+
+                #Exit Button zeichnen
+                pygame.draw.rect(self.win, (200, 55, 55), button_rect, border_radius=8)
+                text = font_button.render("Spiel beenden", True, (255, 255, 255))
+                text_rect = text.get_rect(center=button_rect.center)
+                self.win.blit(text, text_rect)
 
                 pygame.display.update()
 
@@ -213,6 +222,7 @@ class Client:
                 self.run = False
                 self.network.send("disconnect")
 
-
+        import start
+        start.main_menu()
         pygame.quit()
         print("Spiel beendet.")
