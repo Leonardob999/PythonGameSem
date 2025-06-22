@@ -43,6 +43,7 @@ class Client:
         self.bg_music = pygame.mixer.Sound(song_path)
         self.bg_music.set_volume(musik_volume)
 
+        """aaa"""
         if soundfx:
             self.bg_music.play(-1)
 
