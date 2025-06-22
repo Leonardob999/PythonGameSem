@@ -84,7 +84,7 @@ class Client:
             print(f"Fehler beim Starten des Spiels: {e}")
 
     def calculate_xp(self, score_winner, score_loser):
-        max_score = 7
+        max_score = score_winner
         max_xp = 100
 
         diff = score_winner - score_loser

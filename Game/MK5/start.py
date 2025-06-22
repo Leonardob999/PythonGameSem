@@ -231,45 +231,5 @@ def main_menu():
 
 
 
-        """# Beispiel XP-Wert
-        xp_amount = 666  # Dein aktueller XP-Wert
-
-        # Schriftart für die XP-Anzeige
-        xp_font = pygame.font.SysFont("arial", 30)  # Schriftart und Größe definieren
-
-        # Position der Anzeige
-        xp_label = xp_font.render(f"XP: {xp_amount}", True, (255, 255, 255))
-        xp_x = WIN_WIDTH // 2 - xp_label.get_width() // 2  # Zentriert oben mittig
-        xp_y = 20  # Abstand vom oberen Rand
-
-        # Zeichne den Text im Hauptbereich (z. B. im main_menu())
-        win.blit(xp_label, (xp_x, xp_y))"""
-
-    """# Balken-Hintergrund (grau)
-        pygame.draw.rect(win, (120, 120, 120), (bar_x, bar_y, bar_width, bar_height), border_radius=12)
-        # Balken-Füllung je nach Fortschritt (blaugrün)
-        progress = min(current_xp / needed_xp, 1.0)
-        fill_width = int(bar_width * progress)
-        pygame.draw.rect(win, (60, 180, 220), (bar_x, bar_y, fill_width, bar_height), border_radius=12)
-        # Optional: leichte Umrandung
-        pygame.draw.rect(win, (40, 40, 60), (bar_x, bar_y, bar_width, bar_height), 3, border_radius=12)
-
-        # Level-Zahl drüber malen (mittig zu XP-Bar)
-        level_font = pygame.font.SysFont("comicsans", 34, True)
-        level_label = level_font.render(f"Level {level}", True, (250, 230, 80))
-        level_label_x = center_x - level_label.get_width() // 2
-        win.blit(level_label, (level_label_x, bar_y - 42))
-
-        # XP-Fortschritt als Text auf Balken (mittig zu XP-Bar)
-        xp_font = pygame.font.SysFont("comicsans", 22, bold=True)
-        xp_label = xp_font.render(f"{current_xp} / {needed_xp} XP", True, (240,240,255))
-        xp_label_x = center_x - xp_label.get_width() // 2
-        xp_label_y = bar_y + bar_height//2 - xp_label.get_height()//2
-        win.blit(xp_label, (xp_label_x, xp_label_y))
-
-        """
-
-
-
 if __name__ == "__main__":
     main_menu()
