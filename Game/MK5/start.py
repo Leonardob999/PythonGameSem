@@ -230,7 +230,7 @@ def main_menu():
 
 
 
-        # Beispiel XP-Wert
+        """# Beispiel XP-Wert
         xp_amount = 666  # Dein aktueller XP-Wert
 
         # Schriftart für die XP-Anzeige
@@ -242,7 +242,7 @@ def main_menu():
         xp_y = 20  # Abstand vom oberen Rand
 
         # Zeichne den Text im Hauptbereich (z. B. im main_menu())
-        win.blit(xp_label, (xp_x, xp_y))
+        win.blit(xp_label, (xp_x, xp_y))"""
 
     """# Balken-Hintergrund (grau)
         pygame.draw.rect(win, (120, 120, 120), (bar_x, bar_y, bar_width, bar_height), border_radius=12)
