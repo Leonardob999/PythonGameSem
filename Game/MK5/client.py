@@ -21,7 +21,7 @@ class Client:
 
         self.player_index = 0
 
-        self.hintergrundbild = pygame.image.load(f"Game/MK5/images/background_0{selected + 1}.png").convert()
+        self.hintergrundbild = pygame.image.load(f"Game/MK5/images/background_0{selected}.png").convert()
 
 
         songs = [

@@ -354,6 +354,7 @@ song_paths = [
 ]
 
 thumb_paths = [
+    "Game/MK5/images/background_00_thumb.png",
     "Game/MK5/images/background_01_thumb.png",
     "Game/MK5/images/background_02_thumb.png",
     "Game/MK5/images/background_03_thumb.png"
@@ -486,6 +487,19 @@ def einstellungen_menu():
                     soundfx_on = not soundfx_on
                     shop_data["soundfx_on"] = soundfx_on
                     speichere_shop_daten(shop_data)
+
+                    if soundfx_on:
+                        pygame.mixer.unpause()
+                        try:
+                            pygame.mixer.music.unpause()
+                        except:
+                            pass
+                    else:
+                        pygame.mixer.pause()
+                        try:
+                            pygame.mixer.music.pause()
+                        except:
+                            pass
 
                 # Zurück
                 if back_rect.collidepoint(mx, my):
