@@ -2,15 +2,17 @@ import pygame
 import random
 
 class Ball:
-    def __init__(self, x, y, radius):
+    def __init__(self, x, y, radius, color=(255, 255, 255), max_speed=9, base_speed=7):
+        self.vel_y = None
+        self.vel_x = None
         self.x = x
         self.y = y
         self.start_x = x
         self.start_y = y
         self.radius = radius
-        self.color = (255, 255, 255)
-        self.max_speed = 9
-        self.base_speed = 7
+        self.color = color
+        self.max_speed = max_speed
+        self.base_speed = base_speed
         self.reset_position()
 
 

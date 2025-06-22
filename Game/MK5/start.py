@@ -30,19 +30,17 @@ font = pygame.font.SysFont("comicsans", 50)
 GAME_MODE_PRESETS = [
     {
         "name": "infinite",
-        "ball_speed": 3,
         "player_speed": 9,
+        "ball_radius": 30,
         "max_score": None  # Unendlich
     },
     {
         "name": "best_of_7",
-        "ball_speed": 8,
         "player_speed": 1,
         "max_score": 4  # 4 Siege für den Gewinn
     },
     {
         "name": "gauntlet",
-        "ball_speed": 6,
         "player_speed": 7,
         "max_score": 7  # Spieler muss 7 Siege schaffen
     }

@@ -10,7 +10,8 @@ DEFAULTS = {
     "player_width": 25,
     "player_color": (255, 255, 255),
     "ball_radius": 15,
-    "ball_speed": 10,
+    "max_ball_speed": 9,
+    "base_ball_speed": 7,
     "ball_color": (255, 255, 255),
     "max_score": None
 }
@@ -18,15 +19,17 @@ DEFAULTS = {
 
 class GameServer:
     def __init__(self, game_mode, host="0.0.0.0", port=5555):
-        if not game_mode:
-            self.apply_game_mode(DEFAULTS)
-        else:
-            self.game_mode = game_mode
+        self.game_mode = game_mode
+        for key, value in DEFAULTS.items():
+            if key not in game_mode:
+                self.game_mode[key] = value
+            else:
+                self.game_mode[key] = game_mode[key]
         self.host = host
         self.port = port
         self.s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.players = [Player(0, 425, 25, 150, (255, 255, 255)), Player(975, 425, 25, 150, (255, 255, 255))]
-        self.ball = Ball(500, 400, 15)
+        self.ball = Ball(500, 400, game_mode.get("ball_radius"), game_mode.get("ball_color"), game_mode.get("max_ball_speed"), game_mode.get("base_ball_speed"))
         self.scores = [0, 0]
         self.currentPlayer = 0
         self.player_inputs = [None, None]
@@ -39,7 +42,8 @@ class GameServer:
             "player_width": lambda value: [setattr(p, "width", value) for p in self.players],
             "player_color": lambda value: [setattr(p, "color", value) for p in self.players],
             "ball_radius": lambda value: setattr(self.ball, "radius", value),
-            "ball_speed": lambda value: (setattr(self.ball, "vel_x", value), setattr(self.ball, "vel_y", value)),
+            "max_ball_speed": lambda value: (setattr(self.ball, "vel_x", value), setattr(self.ball, "vel_y", value)),
+            "base_ball_speed": lambda value: (setattr(self.ball, "vel_x", value), setattr(self.ball, "vel_y", value)),
             "ball_color": lambda value: setattr(self.ball, "color", value),
             "max_score": lambda value: None
         }
