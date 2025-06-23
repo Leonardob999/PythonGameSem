@@ -324,7 +324,7 @@ def einstellungen_menu():
         fx_btn_rect = pygame.Rect(WIN_WIDTH // 2 - 120, 250, 240, 60)
         fx_color = (80, 200, 80) if soundfx_on else (160, 60, 60)
         pygame.draw.rect(win, fx_color, fx_btn_rect)
-        fx_label = info_font.render("Soundeffekte: AN" if soundfx_on else "Soundeffekte: AUS", True, (10, 10, 10))
+        fx_label = info_font.render("Musik: AN" if soundfx_on else "Musik: AUS", True, (10, 10, 10))
         win.blit(fx_label, (fx_btn_rect.x + 24, fx_btn_rect.y + fx_btn_rect.height // 2 - fx_label.get_height() // 2))
 
         # Hintergrundauswahl

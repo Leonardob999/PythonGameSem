@@ -1,5 +1,6 @@
 import pygame
 import random
+import time
 
 class Ball:
     def __init__(self, x, y, radius, color=(255, 255, 255), max_speed=9, base_speed=7):
@@ -16,6 +17,7 @@ class Ball:
         self.max_speed = max_speed
         self.base_speed = base_speed
         self.reset_position()  # Ballposition und Geschwindigkeit initial setzen
+        self.last_wall_bounce_time = 0  # Zeit der letzten Wandberührung (für Sound)
 
     def reset_position(self):
         # Position auf Startposition zurücksetzen
@@ -103,6 +105,13 @@ class Ball:
 
         return 0  # Wenn kein Punkt erzielt wurde, 0 zurückgeben
 
-
     def bounced_off_wall(self):
-        return self.y - self.radius <= 0 or self.y + self.radius >= 800
+        current_time = time.time()
+        time_since_last_bounce = current_time - self.last_wall_bounce_time
+
+        if self.y - self.radius <= 0 or self.y + self.radius >= 800:
+            if time_since_last_bounce > 0.15:  # Nur alle 150 ms Sound erlauben
+                self.last_wall_bounce_time = current_time
+                return True
+        return False
+
