@@ -19,6 +19,8 @@ def get_path(rel_path):
         base_path = os.path.abspath(".")
     return os.path.join(base_path, rel_path)
 
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 # Fenstergröße und Anzeige konfigurieren
 WIN_WIDTH, WIN_HEIGHT = 1000, 800
 win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
@@ -27,6 +29,7 @@ pygame.display.set_caption("Shop")  # Fenster-Titel
 # Schriften definieren
 font = pygame.font.SysFont("arial", 28)
 desc_font = pygame.font.SysFont("arial", 20)
+back_font = pygame.font.SysFont("arial", 20)
 
 # Speicherpfad
 SAVE_FILE = "Game/MK5/shop_data.json"
@@ -161,7 +164,7 @@ def shop_menu():
         # Zurück-Button
         back_rect = pygame.Rect(WIN_WIDTH // 2 - 80, WIN_HEIGHT - 80, 160, 45)
         pygame.draw.rect(win, (70, 70, 90), back_rect)
-        back_label = font.render("Zurück", True, (255, 255, 255))
+        back_label = back_font.render("Zurück", True, (255, 255, 255))
         win.blit(back_label, (back_rect.x + 30, back_rect.y + 8))
 
         pygame.display.update()
@@ -247,6 +250,7 @@ pygame.display.set_caption("Einstellungen")
 
 font = pygame.font.SysFont("arial", 32)
 info_font = pygame.font.SysFont("arial", 22)
+back_font = pygame.font.SysFont("arial", 20)
 
 SAVE_FILE = get_path("Game/MK5/shop_data.json")
 
@@ -378,7 +382,7 @@ def einstellungen_menu():
         # Zurück-Button
         back_rect = pygame.Rect(WIN_WIDTH // 2 - 80, WIN_HEIGHT - 80, 160, 45)
         pygame.draw.rect(win, (70, 70, 90), back_rect)
-        back_label = info_font.render("Zurück", True, (255, 255, 255))
+        back_label = back_font.render("Zurück", True, (255, 255, 255))
         win.blit(back_label, (back_rect.x + 35, back_rect.y + 8))
 
         pygame.display.update()

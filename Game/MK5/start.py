@@ -32,7 +32,7 @@ BUTTON_COLOR = (100, 100, 255)
 BUTTON_HOVER_COLOR = (150, 150, 255)
 
 # Schriftart
-font = pygame.font.SysFont("comicsans", 50)
+font = pygame.font.SysFont("arial", 50)
 
 # Modus-Presets (anpassbare Werte)
 GAME_MODE_PRESETS = [
