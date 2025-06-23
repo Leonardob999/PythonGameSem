@@ -1,5 +1,6 @@
 import pygame
 import os
+import sys
 from network import Network
 from player import Player
 import json
@@ -10,11 +11,13 @@ from ball import Ball
 
 
 class Client:
+
+
     def __init__(self, host = "127.0.0.1", server = None, server_thread = None):
-        shop_data = json.load(open("Game/MK5/shop_data.json"))
+        shop_data = json.load(open(self.get_path("Game/MK5/shop_data.json")))
         pygame.init()
         pygame.mixer.init()  # Initialisiert den Soundmixer
-        self.bounce_sound = pygame.mixer.Sound("Game/MK5/sounds/bounce.wav")
+        self.bounce_sound = pygame.mixer.Sound(self.get_path("Game/MK5/sounds/bounce.wav"))
         self.bounce_sound.set_volume(shop_data.get("music_volume", 0.5))  # z. B. etwas leiser
         self.soundfx = shop_data.get("soundfx_on", True)
         self.server = server
@@ -23,18 +26,17 @@ class Client:
         pygame.display.init()
         pygame.joystick.init()
 
-        shop_data = json.load(open("Game/MK5/shop_data.json"))
+        shop_data = json.load(open(self.get_path("Game/MK5/shop_data.json")))
         selected = shop_data["selected_background"]
 
         self.player_index = 0
 
-        self.hintergrundbild = pygame.image.load(f"Game/MK5/images/background_0{selected}.png").convert()
-
+        self.hintergrundbild = pygame.image.load(self.get_path(f"Game/MK5/images/background_0{selected}.png")).convert()
 
         songs = [
-            "Game/MK5/sounds/bg_music_rick.mp3",
-            "Game/MK5/sounds/bg_music_crab_rave.mp3",
-            "Game/MK5/sounds/bg_music_fast_pace.mp3"
+            self.get_path("Game/MK5/sounds/bg_music_rick.mp3"),
+            self.get_path("Game/MK5/sounds/bg_music_crab_rave.mp3"),
+            self.get_path("Game/MK5/sounds/bg_music_fast_pace.mp3")
         ]
 
         musik_volume = shop_data.get("music_volume", 0.5)
@@ -67,6 +69,15 @@ class Client:
         self.ball = None
         self.player_index = 0  # Eigener Index: 0=links, 1=rechts
 
+    def get_path(self, rel_path):
+        """Gibt den korrekten Pfad zurück – egal ob im PyInstaller-Build oder nicht"""
+        if getattr(sys, 'frozen', False):
+            # PyInstaller-Pfad
+            base_path = sys._MEIPASS
+        else:
+            # Entwicklungsumgebung
+            base_path = os.path.abspath(".")
+        return os.path.join(base_path, rel_path)
 
     def invert_y(self, y):
         return y  # Y achse bleibt gleich (oben/unten nicht spiegeln)
@@ -111,7 +122,7 @@ class Client:
 
     def save_xp(self, winner_xp, loser_xp):
         # shop_data laden
-        path = "Game/MK5/shop_data.json"
+        path = self.get_path("Game/MK5/shop_data.json")
         if os.path.exists(path):
             with open(path, "r") as f:
                 shop_data = json.load(f)
@@ -240,6 +251,8 @@ class Client:
         print("Warte auf Server-Thread, um zu beenden...")
         self.server_thread.join()  # <<< GEÄNDERT: Timeout entfernt
         print("Server-Thread wurde erfolgreich beendet.")
+
+        self.bg_music.stop()
 
         import start
         start.main_menu()

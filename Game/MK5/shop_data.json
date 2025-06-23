@@ -7,14 +7,14 @@
         1,
         3
     ],
-    "selected_background": 0,
+    "selected_background": 1,
     "owned_songs": [
         0,
         1,
         2
     ],
-    "selected_song": 1,
-    "music_volume": 0.096875,
-    "xp": 546,
+    "selected_song": 2,
+    "music_volume": 0.978125,
+    "xp": 621,
     "soundfx_on": true
 }

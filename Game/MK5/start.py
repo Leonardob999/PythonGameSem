@@ -175,7 +175,7 @@ def main_menu():
     run = True
     while run:
 
-        path = "Game/MK5/shop_data.json"
+        path = get_path("Game/MK5/shop_data.json")
         default_data = {
             "owned_backgrounds": [0],
             "selected_background": 0,
@@ -260,7 +260,7 @@ def main_menu():
 
 
         # shop_data laden
-        with open("Game/MK5/shop_data.json", "r") as f:
+        with open(get_path("Game/MK5/shop_data.json"), "r") as f:
             shop_data = json.load(f)
 
         # XP aus den Daten holen (z.B. 'winner_xp' oder dein tatsächlicher XP-Wert)

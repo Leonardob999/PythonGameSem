@@ -8,6 +8,17 @@ import json
 
 pygame.init()
 
+
+def get_path(rel_path):
+    """Gibt den korrekten Pfad zurück – egal ob im PyInstaller-Build oder nicht"""
+    if getattr(sys, 'frozen', False):
+        # PyInstaller-Pfad
+        base_path = sys._MEIPASS
+    else:
+        # Entwicklungsumgebung
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, rel_path)
+
 # Fenstergröße und Anzeige konfigurieren
 WIN_WIDTH, WIN_HEIGHT = 1000, 800
 win = pygame.display.set_mode((WIN_WIDTH, WIN_HEIGHT))
@@ -22,12 +33,12 @@ SAVE_FILE = "Game/MK5/shop_data.json"
 
 # Hintergrund-Daten
 backgrounds = [
-    {"id": 0, "name": "Standard", "thumb": "Game/MK5/images/background_00_thumb.png"},  # Kostenlos
-    {"id": 1, "name": "colors 1", "thumb": "Game/MK5/images/background_01_thumb.png"},
-    {"id": 2, "name": "colors 2", "thumb": "Game/MK5/images/background_02_thumb.png"},
-    {"id": 3, "name": "colors 3", "thumb": "Game/MK5/images/background_03_thumb.png"},
-    {"id": 4, "name": "psychose", "thumb": "Game/MK5/images/background_04_thumb.png"},
-    {"id": 5, "name": "rainbow", "thumb": "Game/MK5/images/background_05_thumb.png"},
+    {"id": 0, "name": "Standard", "thumb": get_path("Game/MK5/images/background_00_thumb.png")},  # Kostenlos
+    {"id": 1, "name": "colors 1", "thumb": get_path("Game/MK5/images/background_01_thumb.png")},
+    {"id": 2, "name": "colors 2", "thumb": get_path("Game/MK5/images/background_02_thumb.png")},
+    {"id": 3, "name": "colors 3", "thumb": get_path("Game/MK5/images/background_03_thumb.png")},
+    {"id": 4, "name": "psychose", "thumb": get_path("Game/MK5/images/background_04_thumb.png")},
+    {"id": 5, "name": "rainbow", "thumb": get_path("Game/MK5/images/background_05_thumb.png")},
 ]
 
 
@@ -237,22 +248,22 @@ pygame.display.set_caption("Einstellungen")
 font = pygame.font.SysFont("arial", 32)
 info_font = pygame.font.SysFont("arial", 22)
 
-SAVE_FILE = "Game/MK5/shop_data.json"
+SAVE_FILE = get_path("Game/MK5/shop_data.json")
 
 # Liste aller verfügbaren Songs (Index = ID)
 song_paths = [
-    "Game/MK5/sounds/bg_music_rick.mp3",
-    "Game/MK5/sounds/bg_music_crab_rave.mp3",
-    "Game/MK5/sounds/bg_music_fast_pace.mp3"
+    get_path("Game/MK5/sounds/bg_music_rick.mp3"),
+    get_path("Game/MK5/sounds/bg_music_crab_rave.mp3"),
+    get_path("Game/MK5/sounds/bg_music_fast_pace.mp3")
 ]
 
 thumb_paths = [
-    "Game/MK5/images/background_00_thumb.png",
-    "Game/MK5/images/background_01_thumb.png",
-    "Game/MK5/images/background_02_thumb.png",
-    "Game/MK5/images/background_03_thumb.png",
-    "Game/MK5/images/background_04_thumb.png",
-    "Game/MK5/images/background_05_thumb.png",
+    get_path("Game/MK5/images/background_00_thumb.png"),
+    get_path("Game/MK5/images/background_01_thumb.png"),
+    get_path("Game/MK5/images/background_02_thumb.png"),
+    get_path("Game/MK5/images/background_03_thumb.png"),
+    get_path("Game/MK5/images/background_04_thumb.png"),
+    get_path("Game/MK5/images/background_05_thumb.png")
 ]
 background_thumbs = [pygame.transform.scale(pygame.image.load(p), (100, 60)) for p in thumb_paths]
 
