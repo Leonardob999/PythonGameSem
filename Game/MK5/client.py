@@ -10,13 +10,15 @@ from ball import Ball
 
 
 class Client:
-    def __init__(self, host = "127.0.0.1"):
+    def __init__(self, host = "127.0.0.1", server = None, server_thread = None):
         shop_data = json.load(open("Game/MK5/shop_data.json"))
         pygame.init()
         pygame.mixer.init()  # Initialisiert den Soundmixer
         self.bounce_sound = pygame.mixer.Sound("Game/MK5/sounds/bounce.wav")
         self.bounce_sound.set_volume(shop_data.get("music_volume", 0.5))  # z. B. etwas leiser
         self.soundfx = shop_data.get("soundfx_on", True)
+        self.server = server
+        self.server_thread = server_thread
 
         pygame.display.init()
         pygame.joystick.init()
@@ -233,6 +235,9 @@ class Client:
                 print(f"Fehler in der Spielschleife: {e}")
                 self.run = False
                 self.network.send("disconnect")
+
+        self.server.stop()
+        self.server_thread.join(timeout=1)
 
         import start
         start.main_menu()

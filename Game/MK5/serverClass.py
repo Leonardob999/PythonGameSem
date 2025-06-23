@@ -135,6 +135,11 @@ class GameServer:
             conn.close()
             print(f"[DEBUG] Verbindung zu Client {player} geschlossen.")
 
+    def stop(self):
+        print("Server wird beendet...")
+        self.running = False
+        self.s.close()
+
     def start(self):
         try:
             self.s.bind((self.host, self.port))

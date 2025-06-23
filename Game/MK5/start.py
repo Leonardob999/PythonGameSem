@@ -40,7 +40,7 @@ GAME_MODE_PRESETS = [
         "player_speed": 5,
         "ball_radius": 2,
         "max_ball_speed": 88,
-        "base_ball_speed": 66,
+        "base_ball_speed": 7,
         "max_score": None  # Unendlich
     },
     {
@@ -76,7 +76,7 @@ def start_game(mode):
     server_thread = threading.Thread(target=server.start)
     server_thread.start()
     time.sleep(0.1)
-    client = Client()
+    client = Client(server=server, server_thread=server_thread)
     client.start()
 
     print("gameclinet wurde gestartet")
