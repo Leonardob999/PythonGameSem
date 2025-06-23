@@ -11,8 +11,13 @@ from ball import Ball
 
 class Client:
     def __init__(self, host = "127.0.0.1"):
+        shop_data = json.load(open("Game/MK5/shop_data.json"))
         pygame.init()
         pygame.mixer.init()  # Initialisiert den Soundmixer
+        self.bounce_sound = pygame.mixer.Sound("Game/MK5/sounds/bounce.wav")
+        self.bounce_sound.set_volume(shop_data.get("music_volume", 0.5))  # z. B. etwas leiser
+        self.soundfx = shop_data.get("soundfx_on", True)
+
         pygame.display.init()
         pygame.joystick.init()
 
@@ -30,7 +35,6 @@ class Client:
             "Game/MK5/sounds/bg_music_fast_pace.mp3"
         ]
 
-        shop_data = json.load(open("Game/MK5/shop_data.json"))
         musik_volume = shop_data.get("music_volume", 0.5)
         selected_song = shop_data.get("selected_song", 0)
         soundfx = shop_data.get("soundfx_on", True)
@@ -186,6 +190,13 @@ class Client:
                 me.draw(self.win)
                 enemy.draw(self.win)
                 self.ball.draw(self.win)
+                # Ballbewegung und Kollisionssound prüfen
+                result = self.ball.move(me, enemy)
+
+                # Kollisionssound abspielen, wenn Kontakt erkannt wird
+                if self.ball.intersects(me) or self.ball.intersects(enemy):
+                    if self.soundfx:
+                        self.bounce_sound.play()
 
                 font = pygame.font.SysFont("comicsans", 36)
                 score_text = font.render(
