@@ -135,11 +135,6 @@ class GameServer:
             conn.close()
             print(f"[DEBUG] Verbindung zu Client {player} geschlossen.")
 
-    def stop(self):
-        print("Server wird beendet...")
-        self.running = False
-        self.s.close()
-
     def start(self):
         try:
             self.s.bind((self.host, self.port))
@@ -155,16 +150,28 @@ class GameServer:
         while self.running:
             try:
                 conn, addr = self.s.accept()
-                print(f"[DEBUG] Verbunden mit: {addr}")
-                start_new_thread(self.threaded_client, (conn, self.currentPlayer))
-                self.currentPlayer += 1
+                if self.running:
+                    print(f"[DEBUG] Verbunden mit: {addr}")
+                    start_new_thread(self.threaded_client, (conn, self.currentPlayer))
+                    self.currentPlayer += 1
+                else:
+                    conn.close()
             except Exception as e:
-                print(f"[ERROR] Fehler beim Akzeptieren einer Verbindung: {e}")
+                if self.running:
+                    print(f"[ERROR] Fehler beim Akzeptieren einer Verbindung: {e}")
                 break
-
-        self.s.close()
         print("[DEBUG] Server gestoppt.")
 
-    def stop(self):
+    def stop(self): # <<< GEÄNDERT: Komplette Methode
+        print("Server wird beendet...")
         self.running = False
-        self.s.close()
+        # Erstelle eine Dummy-Verbindung zum Server selbst, um den accept()-Aufruf zu beenden
+        try:
+            # Verbinde zu localhost, auch wenn der Server auf 0.0.0.0 lauscht
+            dummy_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            dummy_socket.connect(("127.0.0.1", self.port))
+            dummy_socket.close()
+        except Exception as e:
+            print(f"[WARNUNG] Konnte Dummy-Socket zum Beenden nicht erstellen: {e}")
+        finally:
+            self.s.close() # Schließe den Server-Socket endgültig

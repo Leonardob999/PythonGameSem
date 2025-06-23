@@ -36,22 +36,9 @@ GAME_MODE_PRESETS = [
         "max_score": None  # Unendlich
     },
     {
-        "name": "dein_mudda",
-        "player_speed": 5,
-        "ball_radius": 2,
-        "max_ball_speed": 88,
-        "base_ball_speed": 7,
-        "max_score": None  # Unendlich
-    },
-    {
         "name": "best_of_7",
         "player_speed": 1,
         "max_score": 4  # 4 Siege für den Gewinn
-    },
-    {
-        "name": "best_of_28",
-        "player_speed": 1,
-        "max_score": 63747  # 4 Siege für den Gewinn
     },
     {
         "name": "gauntlet",

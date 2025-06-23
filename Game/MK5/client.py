@@ -237,7 +237,9 @@ class Client:
                 self.network.send("disconnect")
 
         self.server.stop()
-        self.server_thread.join(timeout=1)
+        print("Warte auf Server-Thread, um zu beenden...")
+        self.server_thread.join()  # <<< GEÄNDERT: Timeout entfernt
+        print("Server-Thread wurde erfolgreich beendet.")
 
         import start
         start.main_menu()
