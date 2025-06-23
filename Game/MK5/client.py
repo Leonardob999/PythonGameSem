@@ -194,7 +194,7 @@ class Client:
                 result = self.ball.move(me, enemy)
 
                 # Kollisionssound abspielen, wenn Kontakt erkannt wird
-                if self.ball.intersects(me) or self.ball.intersects(enemy):
+                if self.ball.intersects(me) or self.ball.intersects(enemy) or self.ball.bounced_off_wall():
                     if self.soundfx:
                         self.bounce_sound.play()
 
