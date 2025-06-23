@@ -98,7 +98,7 @@ class Client:
             return 0, 0  # Ungültiges Ergebnis, keine XP
 
         winner_xp = (diff / max_score) * max_xp
-        loser_xp = winner_xp / 4
+        loser_xp = winner_xp / 2
 
         return round(winner_xp), round(loser_xp)
 
