@@ -23,9 +23,11 @@ SAVE_FILE = "Game/MK5/shop_data.json"
 # Hintergrund-Daten
 backgrounds = [
     {"id": 0, "name": "Standard", "thumb": "Game/MK5/images/background_00_thumb.png"},  # Kostenlos
-    {"id": 1, "name": "Background 1", "thumb": "Game/MK5/images/background_01_thumb.png"},
-    {"id": 2, "name": "Background 2", "thumb": "Game/MK5/images/background_02_thumb.png"},
-    {"id": 3, "name": "Background 3", "thumb": "Game/MK5/images/background_03_thumb.png"},
+    {"id": 1, "name": "colors 1", "thumb": "Game/MK5/images/background_01_thumb.png"},
+    {"id": 2, "name": "colors 2", "thumb": "Game/MK5/images/background_02_thumb.png"},
+    {"id": 3, "name": "colors 3", "thumb": "Game/MK5/images/background_03_thumb.png"},
+    {"id": 4, "name": "psychose", "thumb": "Game/MK5/images/background_04_thumb.png"},
+    {"id": 5, "name": "rainbow", "thumb": "Game/MK5/images/background_05_thumb.png"},
 ]
 
 
@@ -81,12 +83,17 @@ def shop_menu():
         # --- Hintergrundkaufbereich ---
         thumb_size = (180, 100)
         spacing = 40
-        total_width = len(backgrounds) * (thumb_size[0] + spacing) - spacing
-        start_x = WIN_WIDTH // 2 - total_width // 2
-        y = 160
+        columns = 3  # Maximal 3 Hintergründe pro Zeile
+        start_x = WIN_WIDTH // 2 - (columns * (thumb_size[0] + spacing) - spacing) // 2
+        start_y = 160
+        thumb_rects = []
 
         for i, bg in enumerate(backgrounds):
-            x = start_x + i * (thumb_size[0] + spacing)
+            col = i % columns
+            row = i // columns
+            x = start_x + col * (thumb_size[0] + spacing)
+            y = start_y + row * (thumb_size[1] + 60)  # 60 = zusätzlicher vertikaler Abstand
+
             rect = pygame.Rect(x, y, *thumb_size)
             color = (150, 150, 200) if rect.collidepoint(mouse_pos) else (100, 100, 160)
             pygame.draw.rect(win, color, rect)
@@ -104,9 +111,21 @@ def shop_menu():
                 status_label = desc_font.render("Kaufen (20 XP)", True, (255, 255, 0))
             win.blit(status_label, (x + 10, y - 24))
 
+            # Für Klick-Erkennung
+            thumb_rects.append((bg["id"], rect))
+
         # --- Liedkaufbereich ---
         song_box_w, song_box_h = 200, 60
-        song_y = 400
+
+        # Anzahl Hintergrund-Zeilen berechnen
+        columns = 3
+        rows = (len(backgrounds) + columns - 1) // columns  # z.B. 6 Elemente => 2 Zeilen
+
+        # Y-Position je nach Anzahl der Hintergrundzeilen
+        start_y = 160
+        vertical_spacing = thumb_size[1] + 60
+        song_y = start_y + rows * vertical_spacing + 40  # zusätzlicher Abstand
+
         song_start_x = WIN_WIDTH // 2 - ((len(songs) * (song_box_w + spacing)) - spacing) // 2
 
         for i, song in enumerate(songs):
@@ -144,12 +163,10 @@ def shop_menu():
 
             if event.type == pygame.MOUSEBUTTONDOWN:
                 # Hintergründe kaufen
-                for bg in backgrounds:
-                    x = start_x + bg["id"] * (thumb_size[0] + spacing)
-                    rect = pygame.Rect(x, y, *thumb_size)
-                    if rect.collidepoint(event.pos) and bg["id"] not in owned_bgs:
+                for bg_id, rect in thumb_rects:
+                    if rect.collidepoint(event.pos) and bg_id not in owned_bgs:
                         if xp >= 20:
-                            owned_bgs.append(bg["id"])
+                            owned_bgs.append(bg_id)
                             xp -= 20
                             shop_data["owned_backgrounds"] = owned_bgs
                             shop_data["xp"] = xp
@@ -233,7 +250,9 @@ thumb_paths = [
     "Game/MK5/images/background_00_thumb.png",
     "Game/MK5/images/background_01_thumb.png",
     "Game/MK5/images/background_02_thumb.png",
-    "Game/MK5/images/background_03_thumb.png"
+    "Game/MK5/images/background_03_thumb.png",
+    "Game/MK5/images/background_04_thumb.png",
+    "Game/MK5/images/background_05_thumb.png",
 ]
 background_thumbs = [pygame.transform.scale(pygame.image.load(p), (100, 60)) for p in thumb_paths]
 
