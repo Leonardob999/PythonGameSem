@@ -12,16 +12,19 @@ from ball import Ball
 
 class Client:
 
+    def get_path(self, rel_path):
+        """Gibt den korrekten Pfad zurück – egal ob im PyInstaller-Build oder nicht"""
+        if getattr(sys, 'frozen', False):
+            # PyInstaller-Pfad
+            base_path = sys._MEIPASS
+        else:
+            # Entwicklungsumgebung
+            base_path = os.path.abspath(".")
+        return os.path.join(base_path, rel_path)
 
     def __init__(self, host = "127.0.0.1", server = None, server_thread = None):
         shop_data = json.load(open(self.get_path("Game/MK5/shop_data.json")))
         pygame.init()
-        try:
-            pygame.mixer.init()
-        except pygame.error as e:
-            print(f"[WARNUNG] Audio konnte nicht initialisiert werden: {e}")
-            pygame.mixer = None  # Optional: deaktivieren
-
         if pygame.mixer and pygame.mixer.get_init():
             self.bounce_sound = pygame.mixer.Sound(self.get_path("Game/MK5/sounds/bounce.wav"))
             self.bounce_sound.set_volume(shop_data.get("music_volume", 0.5))  # z. B. etwas leiser
@@ -44,20 +47,17 @@ class Client:
             self.get_path("Game/MK5/sounds/bg_music_crab_rave.mp3"),
             self.get_path("Game/MK5/sounds/bg_music_fast_pace.mp3")
         ]
-
-        musik_volume = shop_data.get("music_volume", 0.5)
-        selected_song = shop_data.get("selected_song", 0)
-        soundfx = shop_data.get("soundfx_on", True)
-
-        if 0 <= selected_song < len(songs):
-            song_path = songs[selected_song]
-        else:
-            song_path = songs[0]
         if pygame.mixer and pygame.mixer.get_init():
+            musik_volume = shop_data.get("music_volume", 0.5)
+            selected_song = shop_data.get("selected_song", 0)
+            soundfx = shop_data.get("soundfx_on", True)
+            if 0 <= selected_song < len(songs):
+                song_path = songs[selected_song]
+            else:
+                song_path = songs[0]
             self.bg_music = pygame.mixer.Sound(song_path)
             self.bg_music.set_volume(musik_volume)
 
-        if pygame.mixer and pygame.mixer.get_init():
             if soundfx:
                 self.bg_music.play(-1)
 
@@ -74,16 +74,6 @@ class Client:
         self.scores = [0, 0]
         self.ball = None
         self.player_index = 0  # Eigener Index: 0=links, 1=rechts
-
-    def get_path(self, rel_path):
-        """Gibt den korrekten Pfad zurück – egal ob im PyInstaller-Build oder nicht"""
-        if getattr(sys, 'frozen', False):
-            # PyInstaller-Pfad
-            base_path = sys._MEIPASS
-        else:
-            # Entwicklungsumgebung
-            base_path = os.path.abspath(".")
-        return os.path.join(base_path, rel_path)
 
     def invert_y(self, y):
         return y  # Y achse bleibt gleich (oben/unten nicht spiegeln)
@@ -258,7 +248,8 @@ class Client:
         self.server_thread.join()  # <<< GEÄNDERT: Timeout entfernt
         print("Server-Thread wurde erfolgreich beendet.")
 
-        self.bg_music.stop()
+        if pygame.mixer and pygame.mixer.get_init():
+            self.bg_music.stop()
 
         import start
         start.main_menu()

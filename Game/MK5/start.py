@@ -19,7 +19,6 @@ try:
     pygame.mixer.init()
 except pygame.error as e:
     print(f"[WARNUNG] Audio konnte nicht initialisiert werden: {e}")
-    pygame.mixer = None  # Optional: deaktivieren
 
 # Fenstergröße festlegen
 WIN_WIDTH, WIN_HEIGHT = 1000, 800

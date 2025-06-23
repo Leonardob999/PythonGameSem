@@ -119,7 +119,7 @@ def shop_menu():
             if bg["id"] in owned_bgs:
                 status_label = desc_font.render("Gekauft", True, (0, 255, 0))
             else:
-                status_label = desc_font.render("Kaufen (20 XP)", True, (255, 255, 0))
+                status_label = desc_font.render("Kaufen (50 XP)", True, (255, 255, 0))
             win.blit(status_label, (x + 10, y - 24))
 
             # Für Klick-Erkennung
@@ -151,7 +151,7 @@ def shop_menu():
             if song["id"] in owned_songs:
                 status = desc_font.render("Gekauft", True, (0, 200, 0))
             else:
-                status = desc_font.render("Kaufen (25 XP)", True, (255, 255, 0))
+                status = desc_font.render("Kaufen (75 XP)", True, (255, 255, 0))
             win.blit(status, (rect.x + 10, rect.y - 22))
 
         # XP-Anzeige
