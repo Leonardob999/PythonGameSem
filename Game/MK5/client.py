@@ -93,6 +93,7 @@ class Client:
         max_score = score_winner
         max_xp = 100
 
+
         diff = score_winner - score_loser
         if diff <= 0:
             return 0, 0  # Ungültiges Ergebnis, keine XP
