@@ -16,10 +16,16 @@ class Client:
     def __init__(self, host = "127.0.0.1", server = None, server_thread = None):
         shop_data = json.load(open(self.get_path("Game/MK5/shop_data.json")))
         pygame.init()
-        pygame.mixer.init()  # Initialisiert den Soundmixer
-        self.bounce_sound = pygame.mixer.Sound(self.get_path("Game/MK5/sounds/bounce.wav"))
-        self.bounce_sound.set_volume(shop_data.get("music_volume", 0.5))  # z. B. etwas leiser
-        self.soundfx = shop_data.get("soundfx_on", True)
+        try:
+            pygame.mixer.init()
+        except pygame.error as e:
+            print(f"[WARNUNG] Audio konnte nicht initialisiert werden: {e}")
+            pygame.mixer = None  # Optional: deaktivieren
+
+        if pygame.mixer and pygame.mixer.get_init():
+            self.bounce_sound = pygame.mixer.Sound(self.get_path("Game/MK5/sounds/bounce.wav"))
+            self.bounce_sound.set_volume(shop_data.get("music_volume", 0.5))  # z. B. etwas leiser
+            self.soundfx = shop_data.get("soundfx_on", True)
         self.server = server
         self.server_thread = server_thread
 
@@ -47,13 +53,13 @@ class Client:
             song_path = songs[selected_song]
         else:
             song_path = songs[0]
+        if pygame.mixer and pygame.mixer.get_init():
+            self.bg_music = pygame.mixer.Sound(song_path)
+            self.bg_music.set_volume(musik_volume)
 
-        self.bg_music = pygame.mixer.Sound(song_path)
-        self.bg_music.set_volume(musik_volume)
-
-        """aaa"""
-        if soundfx:
-            self.bg_music.play(-1)
+        if pygame.mixer and pygame.mixer.get_init():
+            if soundfx:
+                self.bg_music.play(-1)
 
         self.host = host
 

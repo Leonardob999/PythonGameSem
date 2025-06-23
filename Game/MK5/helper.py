@@ -403,19 +403,19 @@ def einstellungen_menu():
                     soundfx_on = not soundfx_on
                     shop_data["soundfx_on"] = soundfx_on
                     speichere_shop_daten(shop_data)
-
-                    if soundfx_on:
-                        pygame.mixer.unpause()
-                        try:
-                            pygame.mixer.music.unpause()
-                        except:
-                            pass
-                    else:
-                        pygame.mixer.pause()
-                        try:
-                            pygame.mixer.music.pause()
-                        except:
-                            pass
+                    if pygame.mixer and pygame.mixer.get_init():
+                        if soundfx_on:
+                            pygame.mixer.unpause()
+                            try:
+                                pygame.mixer.music.unpause()
+                            except:
+                                pass
+                        else:
+                            pygame.mixer.pause()
+                            try:
+                                pygame.mixer.music.pause()
+                            except:
+                                pass
 
                 # Zurück
                 if back_rect.collidepoint(mx, my):

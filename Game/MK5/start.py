@@ -10,8 +10,16 @@ import time
 from helper import *  # Importiere das Shop-Menü aus helper.py
 from client import Client
 
+
+
+
+
 pygame.init()
-pygame.mixer.init()  # Initialisiert den Soundmixer
+try:
+    pygame.mixer.init()
+except pygame.error as e:
+    print(f"[WARNUNG] Audio konnte nicht initialisiert werden: {e}")
+    pygame.mixer = None  # Optional: deaktivieren
 
 # Fenstergröße festlegen
 WIN_WIDTH, WIN_HEIGHT = 1000, 800
