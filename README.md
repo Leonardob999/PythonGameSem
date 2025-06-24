@@ -9,5 +9,5 @@ little phython game for school with a esp motion controler
 # Starten:
   Im FinalGame Ordner start.bat/start.sh ausführen
   Wichtig: Wenn man nicht die Startdateien ausführen kann, dann pzthon Befehl selber ausführen. Python3 muss benutzt werden.
-    1. Working Directory: FinalGame
-    2. Start Datei: Game/MK5/start.py
+  1. Working Directory: FinalGame
+  2. Start Datei: Game/MK5/start.py
